@@ -104,7 +104,7 @@ export default function MovieCard({
             </div>
 
             <div className="my-auto py-2">
-              <h3 className="font-serif font-extrabold text-sm sm:text-base leading-tight tracking-tight line-clamp-3 text-zinc-100">
+              <h3 className="font-sans font-extrabold text-sm sm:text-base leading-tight tracking-tight line-clamp-3 text-zinc-100">
                 {movie.title}
               </h3>
               {primaryGenre && (

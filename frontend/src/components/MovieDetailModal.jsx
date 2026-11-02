@@ -179,7 +179,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                   ) : (
                     <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-zinc-900 to-black text-white select-none border border-white/10">
                       <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">Flix Archive</span>
-                      <h2 className="font-serif font-extrabold text-base leading-tight my-auto text-zinc-100">{movie.title}</h2>
+                      <h2 className="font-sans font-extrabold text-base leading-tight my-auto text-zinc-100">{movie.title}</h2>
                       <span className="text-[10px] font-mono text-amber-400">★ {movie.voteAverage ? Number(movie.voteAverage).toFixed(1) : ''}</span>
                     </div>
                   )}
@@ -452,7 +452,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                             {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString() : 'Recent'}
                           </span>
                         </div>
-                        <p className="text-xs leading-relaxed opacity-90 font-serif italic">
+                        <p className="text-xs leading-relaxed opacity-90 font-sans italic">
                           "{rev.reviewText}"
                         </p>
                       </div>

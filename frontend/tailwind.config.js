@@ -40,7 +40,10 @@ export default {
       },
       fontFamily: {
         sans: [
-          'Inter',
+          '"Helvetica Neue"',
+          'Helvetica',
+          'Arial',
+          'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
@@ -48,9 +51,10 @@ export default {
           'sans-serif',
         ],
         serif: [
-          'Newsreader',
-          'Georgia',
-          'serif',
+          '"Helvetica Neue"',
+          'Helvetica',
+          'Arial',
+          'sans-serif',
         ]
       },
       aspectRatio: {

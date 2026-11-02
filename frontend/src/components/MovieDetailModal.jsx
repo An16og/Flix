@@ -356,9 +356,9 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
               {similarMovies && similarMovies.length > 0 && (
                 <div className="mt-8">
                   <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-4 h-4 text-brand-green" />
+                    <Film className="w-4 h-4 text-brand-green" />
                     <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted">
-                      More Like This (pgvector Cosine Distance)
+                      More Like This
                     </h3>
                   </div>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">

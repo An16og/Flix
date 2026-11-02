@@ -90,7 +90,7 @@ export default function ProfileView({ onMovieClick, onOpenAuthModal }) {
             Welcome to Your Flix Profile
           </h2>
           <p className="text-sm text-lbBeige-textMuted dark:text-lbDark-textMuted max-w-md mx-auto mb-8">
-            Sign in or choose one of our demonstration personas to preview your personalized watchlist, logging history, and taste centroid.
+            Sign in or choose one of our demonstration personas to preview your personalized watchlist, logging history, and tailored recommendations.
           </p>
 
           <button

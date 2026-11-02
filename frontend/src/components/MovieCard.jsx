@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Star, Eye, Bookmark, Sparkles, Check, Film } from 'lucide-react';
+import { Star, Eye, Bookmark, Check, Film } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { activityApi } from '../api/client';
-import { getPosterUrl } from '../utils/imageUtils';
+import { getPosterUrl, getPlaceholderPoster } from '../utils/imageUtils';
 
 export default function MovieCard({ 
   movie, 
@@ -128,9 +128,9 @@ export default function MovieCard({
           {/* Top Badges (Similarity / Year) */}
           <div className="flex items-center justify-between w-full">
             {similarityScore ? (
-              <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-green/90 text-black shadow-sm">
-                <Sparkles className="w-2.5 h-2.5" />
-                {Math.round(similarityScore * 100)}% match
+              <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-green text-black shadow-sm tracking-wide">
+                <Film className="w-2.5 h-2.5" />
+                {Math.round(similarityScore * 100)}% Match
               </span>
             ) : releaseYear ? (
               <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-black/60 text-white/90 backdrop-blur-sm">

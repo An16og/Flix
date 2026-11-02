@@ -63,7 +63,7 @@ export const recommendationApi = {
 
 export const userApi = {
   login: async (email, password) => {
-    const res = await api.post('/users/login', { email, password });
+    const res = await api.post('/users/login', { usernameOrEmail: email, email, password });
     return res.data;
   },
 

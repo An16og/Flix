@@ -82,13 +82,13 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
         if (recs && recs.length > 0 && recs[0].recommendationReason) {
           setRecentWatchReason(recs[0].recommendationReason);
         } else {
-          setRecentWatchReason("Computed from your 5 most recent watches with recency decay");
+          setRecentWatchReason("Personalized match based on your recent watches & ratings");
         }
       } else {
         // Logged out: show top rated curated films
         const topRated = await movieApi.getTopRated(12);
         setRecentWatchRecs(topRated || []);
-        setRecentWatchReason("Trending picks — Sign in with any demo persona to unlock your personalized vector centroid");
+        setRecentWatchReason("Trending picks — Sign in with any demo persona to unlock personalized movie matches");
       }
     } catch (e) {
       console.error('Failed to load recent watches recommendations', e);
@@ -177,24 +177,24 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
         onOpenAuthModal={onOpenAuthModal}
       />
 
-      {/* 2. List 1: Based on Your Recent 5 Watches (Vector Centroid) */}
+      {/* 2. List 1: Based on Your Recent 5 Watches */}
       <MovieRow
         title={currentUser ? "Based on Your Recent Watches" : "Curated for You — Top Recommendations"}
         subtitle={recentWatchReason}
-        icon={Sparkles}
-        badge={currentUser ? "768-D Centroid" : "Trending"}
+        icon={Film}
+        badge={currentUser ? "For You" : "Trending"}
         movies={recentWatchRecs}
         loading={recentWatchLoading}
         onMovieClick={onMovieClick}
-        emptyMessage="Rate or mark films as watched to generate your personalized centroid vector!"
+        emptyMessage="Rate or mark films as watched to unlock tailored recommendations!"
       />
 
-      {/* 3. List 2: Based on Your Most Prominent Trait / Cinema Spectrum */}
+      {/* 3. List 2: Based on Your Most Prominent Trait */}
       <MovieRow
         title={traitTitle}
         subtitle={traitSubtitle}
-        icon={Layers}
-        badge="Trait Spectrum"
+        icon={Compass}
+        badge="Spotlight"
         movies={traitMovies}
         loading={traitLoading}
         onMovieClick={onMovieClick}

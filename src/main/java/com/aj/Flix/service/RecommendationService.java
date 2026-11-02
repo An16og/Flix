@@ -183,7 +183,7 @@ public class RecommendationService {
         } else {
             anchorSummary = String.join(", ", anchorTitles.subList(0, 3)) + " and " + (anchorTitles.size() - 3) + " others";
         }
-        String reason = "Centroid match based on your recent watches: " + anchorSummary;
+        String reason = "Because you watched " + anchorSummary;
 
         return candidates.stream()
                 .map(c -> {

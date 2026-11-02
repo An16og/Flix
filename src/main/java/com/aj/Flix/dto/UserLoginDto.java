@@ -11,5 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserLoginDto {
     private String usernameOrEmail;
+    private String email;
     private String password;
+
+    public String getUsernameOrEmail() {
+        if (usernameOrEmail != null && !usernameOrEmail.isBlank()) {
+            return usernameOrEmail.trim();
+        }
+        return email != null ? email.trim() : null;
+    }
 }

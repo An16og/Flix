@@ -98,7 +98,7 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
         {/* Top Badges */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
           <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brand-green text-black flex items-center gap-1 shadow-sm">
-            <Sparkles className="w-3 h-3" /> Featured Spotlight
+            <Film className="w-3 h-3" /> Featured Premiere
           </span>
 
           <span className="flex items-center gap-1 text-xs font-bold font-mono px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-amber-400 border border-white/10">

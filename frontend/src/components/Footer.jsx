@@ -1,5 +1,5 @@
 import React from 'react';
-import { Database, Moon, Sun } from 'lucide-react';
+import { Database, Moon, Sun, Film } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Footer() {
@@ -15,17 +15,13 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center gap-2">
-              <div className="flex items-center -space-x-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-brand-orange" />
-                <span className="w-2.5 h-2.5 rounded-full bg-brand-green" />
-                <span className="w-2.5 h-2.5 rounded-full bg-brand-blue" />
-              </div>
+              <Film className="w-4 h-4 text-brand-rust dark:text-brand-green" />
               <span className="font-extrabold text-sm tracking-wider uppercase text-black dark:text-white">
-                Flix Recommendation System
+                Flix Cinema
               </span>
             </div>
             <p className="text-[11px] mt-1 text-center md:text-left">
-              Cinematic exploration powered by PostgreSQL 18, pgvector & Gemini 768-d Centroid Embeddings.
+              Cinematic exploration & tailored recommendations designed for film lovers.
             </p>
           </div>
 
@@ -52,14 +48,14 @@ export default function Footer() {
 
             <div className="flex items-center gap-1">
               <Database className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="font-mono text-[11px]">API: localhost:8081</span>
+              <span className="font-mono text-[11px]">System Ready</span>
             </div>
           </div>
 
         </div>
 
         <div className="mt-6 pt-6 border-t text-center text-[10px] border-lbBeige-border dark:border-lbDark-border">
-          Built with Spring Boot 4, PostgreSQL pgvector & React. Designed with minimal Letterboxd aesthetics for movie lovers.
+          Designed with minimal Letterboxd aesthetics for movie lovers.
         </div>
       </div>
     </footer>

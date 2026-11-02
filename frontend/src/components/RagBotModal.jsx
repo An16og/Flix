@@ -28,7 +28,7 @@ export default function RagBotModal({ onOpenMovieDetail }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: "Hello! I am your Flix AI Concierge, powered by Gemini 768-D embeddings and pgvector. Ask me anything about movie recommendations, plot themes, or director styles.",
+      text: "Hello! I am your Flix Cinema Concierge. Ask me anything about movie recommendations, plot themes, or director styles.",
       movies: []
     }
   ]);
@@ -55,9 +55,9 @@ export default function RagBotModal({ onOpenMovieDetail }) {
 
       let replyText = "";
       if (results && results.length > 0) {
-        replyText = `Based on your request, I searched our vector space and identified ${results.length} strong semantic matches:`;
+        replyText = `Based on what you're looking for, here are ${results.length} great film recommendations:`;
       } else {
-        replyText = "I couldn't find a direct vector match for that inquiry. Try asking about a specific theme, director, or favorite film title!";
+        replyText = "I couldn't find an exact match for that inquiry. Try asking about a specific theme, director, or favorite film title!";
       }
 
       const botMessage = {
@@ -73,7 +73,7 @@ export default function RagBotModal({ onOpenMovieDetail }) {
         ...prev,
         {
           role: 'assistant',
-          text: "I had a momentary glitch connecting to the vector engine. Please try again in a moment!",
+          text: "I had a momentary connection glitch. Please try again in a moment!",
           movies: []
         }
       ]);
@@ -88,19 +88,19 @@ export default function RagBotModal({ onOpenMovieDetail }) {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3 py-2.5 rounded-full shadow-xl transition-all duration-300
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all duration-300
             bg-lbBeige-surface/95 border border-lbBeige-border text-lbBeige-textMain hover:border-brand-rust
             dark:bg-zinc-900/95 dark:border-zinc-700/80 dark:text-zinc-200 dark:hover:border-brand-green/80
             backdrop-blur-md active:scale-95 group"
-          title="Flix AI Concierge"
-          aria-label="Open AI Concierge"
+          title="Cinema Concierge"
+          aria-label="Open Cinema Concierge"
         >
           <div className="relative">
-            <Sparkles className="w-4 h-4 text-brand-rust dark:text-brand-green transition-transform group-hover:scale-110" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-brand-green animate-pulse" />
+            <Film className="w-4 h-4 text-brand-rust dark:text-brand-green transition-transform group-hover:scale-110" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-brand-green" />
           </div>
           <span className="text-xs font-semibold tracking-wide pr-1">
-            AI Concierge
+            Cinema Concierge
           </span>
         </button>
       )}
@@ -115,14 +115,14 @@ export default function RagBotModal({ onOpenMovieDetail }) {
             bg-lbBeige-surface/90 border-lbBeige-border dark:bg-lbDark-surface/90 dark:border-lbDark-border backdrop-blur-md">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-green/20 text-brand-green">
-                <Sparkles className="w-4 h-4" />
+                <Film className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="text-sm font-bold text-lbBeige-textMain dark:text-lbDark-textMain leading-none">
-                  Flix AI Concierge
+                  Cinema Concierge
                 </h3>
                 <span className="text-[10px] text-lbBeige-textMuted dark:text-lbDark-textMuted font-mono">
-                  Gemini Embeddings + pgvector
+                  Personal Movie Guide
                 </span>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function RagBotModal({ onOpenMovieDetail }) {
                 <div className="w-6 h-6 rounded-full flex items-center justify-center bg-brand-green/20 text-brand-green">
                   <Sparkles className="w-3 h-3 animate-spin" />
                 </div>
-                <span>Scanning 768-D vector space...</span>
+                <span>Finding movie recommendations for you...</span>
               </div>
             )}
 

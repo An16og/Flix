@@ -48,7 +48,7 @@ export default function App() {
           />
         )}
 
-        {/* 2. Search Tab: Search bar + Recent Searches + AI Semantic Vector & Keyword search */}
+        {/* 2. Search Tab: Search bar + Recent Searches + Smart Story & Title search */}
         {activeTab === 'search' && (
           <SearchView
             onMovieClick={handleOpenMovieDetail}

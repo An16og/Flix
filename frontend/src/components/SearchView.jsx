@@ -177,8 +177,8 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
                   : 'text-lbBeige-textMuted dark:text-lbDark-textMuted hover:text-black dark:hover:text-white'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-brand-green" />
-              AI Semantic Vector Search
+              <Film className="w-3.5 h-3.5 text-brand-green" />
+              Smart Story & Mood Search
             </button>
 
             <button
@@ -191,12 +191,12 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
               }`}
             >
               <Search className="w-3.5 h-3.5" />
-              Keyword Match
+              Exact Title Match
             </button>
           </div>
 
           <span className="text-[11px] text-lbBeige-textMuted dark:text-lbDark-textMuted hidden sm:inline">
-            {searchMode === 'semantic' ? 'Gemini 768-D Embedding' : 'Exact SQL ILIKE'}
+            {searchMode === 'semantic' ? 'Finds movies by story & themes' : 'Finds movies by title'}
           </span>
         </div>
       </div>
@@ -301,7 +301,7 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
             No cinematic matches found
           </p>
           <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
-            Try adjusting your search terms or switching between Semantic Vector Search and Keyword Match.
+            Try adjusting your search terms or switching between Smart Story Search and Title Match.
           </p>
         </div>
       ) : null}

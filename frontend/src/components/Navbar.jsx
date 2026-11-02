@@ -9,7 +9,7 @@ import {
   Eye, 
   LogOut, 
   ChevronDown,
-  Sparkles,
+  Film,
   LogIn
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
@@ -41,11 +41,9 @@ export default function Navbar({
               onClick={() => setActiveTab('home')}
               className="flex items-center gap-2.5 group focus:outline-none"
             >
-              {/* Letterboxd-style multi-color dots */}
-              <div className="flex items-center -space-x-1.5">
-                <span className="w-3.5 h-3.5 rounded-full bg-brand-orange ring-2 ring-lbBeige-bg dark:ring-lbDark-bg shadow-sm" />
-                <span className="w-3.5 h-3.5 rounded-full bg-brand-green ring-2 ring-lbBeige-bg dark:ring-lbDark-bg shadow-sm" />
-                <span className="w-3.5 h-3.5 rounded-full bg-brand-blue ring-2 ring-lbBeige-bg dark:ring-lbDark-bg shadow-sm" />
+              {/* Cinema Brand Logo */}
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-rust text-white dark:bg-brand-green dark:text-black shadow-md group-hover:scale-105 transition-transform">
+                <Film className="w-4 h-4" />
               </div>
               <span className="font-black tracking-wider text-xl uppercase font-sans">
                 Flix

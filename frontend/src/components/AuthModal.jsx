@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User, AlertCircle, Sparkles, Check, ArrowRight } from 'lucide-react';
+import { X, Lock, Mail, User, AlertCircle, Film, Check, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
@@ -208,7 +208,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         {/* Mock Demonstration Accounts Card */}
         <div className="mt-6 pt-5 border-t border-lbBeige-border dark:border-lbDark-border">
           <div className="flex items-center gap-1.5 mb-2.5">
-            <Sparkles className="w-4 h-4 text-brand-rust dark:text-brand-green" />
+            <Film className="w-4 h-4 text-brand-rust dark:text-brand-green" />
             <span className="text-xs font-bold uppercase tracking-wider font-mono">
               Demo Profiles for Presentation
             </span>

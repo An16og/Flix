@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Eye, Bookmark, Sparkles, Check } from 'lucide-react';
+import { Star, Eye, Bookmark, Sparkles, Check, Film } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { activityApi } from '../api/client';
 import { getPosterUrl } from '../utils/imageUtils';
@@ -16,6 +16,7 @@ export default function MovieCard({
   const [watched, setWatched] = useState(isWatched);
   const [inWatchlist, setInWatchlist] = useState(isInWatchlist);
   const [actionLoading, setActionLoading] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   // Safe poster resolution
   const posterUrl = getPosterUrl(movie);
@@ -26,6 +27,10 @@ export default function MovieCard({
     : (movie.release_date ? movie.release_date.split('-')[0] : null);
 
   const voteAverage = movie.voteAverage || movie.vote_average || 0;
+
+  // Primary genre for styling
+  const genreList = Array.isArray(movie.genres) ? movie.genres : [];
+  const primaryGenre = genreList.length > 0 ? genreList[0] : null;
 
   const handleToggleWatched = async (e) => {
     e.stopPropagation();
@@ -73,16 +78,49 @@ export default function MovieCard({
         group-hover:border-brand-rust dark:group-hover:border-brand-green 
         group-hover:shadow-[0_8px_25px_-6px_rgba(191,83,44,0.3)] dark:group-hover:shadow-[0_8px_25px_-6px_rgba(0,224,84,0.3)]">
         
-        <img
-          src={posterUrl}
-          alt={movie.title}
-          loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80';
-          }}
-        />
+        {!imgError ? (
+          <img
+            src={posterUrl}
+            alt={movie.title}
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          /* Typographic Letterboxd Art Poster when CDN image is missing/404 */
+          <div className="w-full h-full flex flex-col justify-between p-3.5 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black text-white select-none">
+            <div className="flex items-center justify-between">
+              <span className="p-1 rounded bg-white/10 text-white/70">
+                <Film className="w-3.5 h-3.5" />
+              </span>
+              {releaseYear && (
+                <span className="font-mono text-[10px] text-zinc-400 font-semibold tracking-wider">
+                  {releaseYear}
+                </span>
+              )}
+            </div>
+
+            <div className="my-auto py-2">
+              <h3 className="font-serif font-extrabold text-sm sm:text-base leading-tight tracking-tight line-clamp-3 text-zinc-100">
+                {movie.title}
+              </h3>
+              {primaryGenre && (
+                <span className="inline-block mt-2 text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-brand-green/20 text-brand-green border border-brand-green/30">
+                  {primaryGenre}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 border-t border-white/10 pt-1.5">
+              <span>Flix Cinema</span>
+              {voteAverage > 0 && (
+                <span className="flex items-center gap-0.5 text-amber-400 font-bold">
+                  ★ {voteAverage.toFixed(1)}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Hover Overlay with Quick Actions */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2.5">

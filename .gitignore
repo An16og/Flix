@@ -4,6 +4,7 @@ node_modules/
 dist/
 *.log
 .env*
+local.properties
 application-local.properties
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

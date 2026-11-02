@@ -17,13 +17,10 @@ import java.util.Map;
  *
  * Endpoint used:
  *   POST https://generativelanguage.googleapis.com/v1beta/models/
- *        text-embedding-004:embedContent?key={apiKey}
+ *        gemini-embedding-001:embedContent?key={apiKey}
  *
- * The model 'text-embedding-004' produces 768-dimensional vectors, which
- * matches the vector(768) column in movies_metadata.
- *
- * Replace the model name in EMBEDDING_URL if you switch to a different
- * Gemini embedding model (e.g. embedding-001 → 768 dims as well).
+ * Configured with outputDimensionality = 768, which matches the vector(768)
+ * column in PostgreSQL movies_metadata.
  */
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class GeminiClientService {
 
     private static final String EMBEDDING_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/" +
-            "text-embedding-004:embedContent?key={apiKey}";
+            "gemini-embedding-001:embedContent?key={apiKey}";
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -48,15 +45,21 @@ public class GeminiClientService {
      * @return     A float[] of length 768, or null if the API call fails.
      */
     public float[] getEmbedding(String text) {
+        if (apiKey == null || apiKey.isBlank() || apiKey.contains("YOUR_GEMINI_API_KEY")) {
+            log.warn("Gemini API key is not configured or is placeholder.");
+            return null;
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Gemini embedContent request body
+        // Gemini embedContent request body with 768-dimensional output
         Map<String, Object> requestBody = Map.of(
-                "model", "models/text-embedding-004",
+                "model", "models/gemini-embedding-001",
                 "content", Map.of(
                         "parts", List.of(Map.of("text", text))
-                )
+                ),
+                "outputDimensionality", 768
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
@@ -79,30 +82,37 @@ public class GeminiClientService {
     }
 
     /**
-     * Parses the Gemini API JSON response to extract the float array.
-     *
-     * Expected response structure:
+     * Extracts float[] values from Gemini's JSON response:
      * {
      *   "embedding": {
-     *     "values": [0.123, -0.456, ...]
+     *     "values": [0.0123, -0.0456, ...]
      *   }
      * }
      */
-    private float[] parseEmbeddingResponse(String responseBody) throws Exception {
-        JsonNode root = objectMapper.readTree(responseBody);
-        JsonNode valuesNode = root.path("embedding").path("values");
-
-        if (valuesNode.isMissingNode() || !valuesNode.isArray()) {
-            throw new IllegalStateException(
-                    "Unexpected Gemini response structure — 'embedding.values' not found. " +
-                    "Response: " + responseBody
-            );
+    private float[] parseEmbeddingResponse(String responseJson) {
+        if (responseJson == null || responseJson.isBlank()) {
+            return null;
         }
 
-        float[] vector = new float[valuesNode.size()];
-        for (int i = 0; i < valuesNode.size(); i++) {
-            vector[i] = (float) valuesNode.get(i).asDouble();
+        try {
+            JsonNode root = objectMapper.readTree(responseJson);
+            JsonNode valuesNode = root.path("embedding").path("values");
+
+            if (!valuesNode.isArray() || valuesNode.isEmpty()) {
+                log.warn("Gemini response missing 'embedding.values' array: {}", responseJson);
+                return null;
+            }
+
+            float[] vector = new float[valuesNode.size()];
+            for (int i = 0; i < valuesNode.size(); i++) {
+                vector[i] = (float) valuesNode.get(i).asDouble();
+            }
+
+            return vector;
+
+        } catch (Exception e) {
+            log.error("Error parsing Gemini embedding response JSON: {}", e.getMessage(), e);
+            return null;
         }
-        return vector;
     }
 }

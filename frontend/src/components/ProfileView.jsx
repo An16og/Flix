@@ -1,278 +1,313 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, Bookmark, Star, Film, LogIn } from 'lucide-react';
-import { activityApi } from '../api/client';
-import { useAuth } from '../context/AuthContext';
+import { 
+  Bookmark, 
+  Eye, 
+  Star, 
+  User, 
+  Sparkles, 
+  Film, 
+  LogOut, 
+  CheckCircle2, 
+  Clock, 
+  Award, 
+  TrendingUp,
+  UserCheck
+} from 'lucide-react';
 import MovieCard from './MovieCard';
+import { activityApi, userApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 
-export default function ProfileView({ onMovieClick, onOpenAuthModal, initialSubTab = 'watched' }) {
-  const { currentUser } = useAuth();
-  const [subTab, setSubTab] = useState(initialSubTab); // 'watched', 'watchlist', 'ratings'
-  const [watchedList, setWatchedList] = useState([]);
+const DEMO_PERSONAS = [
+  { id: 1, name: 'Maya Lin', email: 'maya.lin@example.com', taste: 'Sci-Fi Specialist', badge: 'Sci-Fi' },
+  { id: 5, name: 'Alex Vance', email: 'alex.vance@example.com', taste: 'Horror & Suspense Buff', badge: 'Horror' },
+  { id: 2, name: 'Chloe Dubois', email: 'chloe.dubois@example.com', taste: 'Animation & Pixar Lover', badge: 'Animation' },
+  { id: 3, name: 'Marcus Chen', email: 'marcus.chen@example.com', taste: 'Crime & Mob Cinema Purist', badge: 'Crime' },
+  { id: 4, name: 'Liam O\'Connor', email: 'liam.oconnor@example.com', taste: 'Romance & Heartfelt Epics', badge: 'Romance' }
+];
+
+export default function ProfileView({ onMovieClick, onOpenAuthModal }) {
+  const { currentUser, login, logout } = useAuth();
+  const [activeSubTab, setActiveSubTab] = useState('watchlist'); // 'watchlist' | 'watched'
   const [watchlist, setWatchlist] = useState([]);
-  const [ratings, setRatings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [watched, setWatched] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [switchingPersona, setSwitchingPersona] = useState(false);
 
   useEffect(() => {
     if (currentUser?.id) {
       loadUserData(currentUser.id);
-    } else {
-      setLoading(false);
     }
-  }, [currentUser?.id]);
+  }, [currentUser]);
 
   const loadUserData = async (userId) => {
     setLoading(true);
     try {
-      const [watchedData, watchlistData, ratingsData] = await Promise.all([
-        activityApi.getWatched(userId).catch(() => []),
+      const [wl, wt] = await Promise.all([
         activityApi.getWatchlist(userId).catch(() => []),
-        activityApi.getUserRatings(userId).catch(() => [])
+        activityApi.getWatched(userId).catch(() => [])
       ]);
-      setWatchedList(watchedData || []);
-      setWatchlist(watchlistData || []);
-      setRatings(ratingsData || []);
+      setWatchlist(wl || []);
+      setWatched(wt || []);
     } catch (err) {
-      console.error(err);
+      console.error('Error loading user profile lists', err);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSwitchPersona = async (persona) => {
+    setSwitchingPersona(true);
+    try {
+      await login(persona.email, 'password123');
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSwitchingPersona(false);
+    }
+  };
+
+  const handleActivityChanged = () => {
+    if (currentUser?.id) {
+      loadUserData(currentUser.id);
+    }
+  };
+
+  // Determine user taste badge
+  const email = currentUser?.email?.toLowerCase() || '';
+  let tasteTitle = 'Cinema Connoisseur';
+  if (email.includes('maya') || email.includes('alice')) tasteTitle = 'Sci-Fi & Cyberpunk Specialist';
+  else if (email.includes('alex') || email.includes('ethan')) tasteTitle = 'Horror & Psychological Thriller';
+  else if (email.includes('chloe') || email.includes('bob')) tasteTitle = 'Pixar & Animation Enthusiast';
+  else if (email.includes('marcus') || email.includes('charlie')) tasteTitle = 'Neo-Noir & Mob Cinema Purist';
+  else if (email.includes('liam') || email.includes('diana')) tasteTitle = 'Romantic Drama & Classics';
+
   if (!currentUser) {
     return (
-      <div className="p-16 text-center rounded-2xl border border-lbBeige-border dark:border-lbDark-border bg-lbBeige-surface dark:bg-lbDark-surface my-8">
-        <Film className="w-12 h-12 mx-auto mb-3 text-brand-green" />
-        <h2 className="text-lg font-bold font-sans">Please Sign In to View Your Film Diary</h2>
-        <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1 mb-6">
-          Log films you've watched, build your watchlist, and rate your favorites.
-        </p>
-        <button
-          onClick={() => onOpenAuthModal('login')}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-brand-green text-black hover:bg-emerald-400"
-        >
-          <LogIn className="w-4 h-4" />
-          Sign In
-        </button>
+      <div className="py-12 max-w-4xl mx-auto text-center pb-24">
+        <div className="p-10 rounded-2xl border bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border shadow-xl">
+          <User className="w-12 h-12 mx-auto text-brand-green mb-4" />
+          <h2 className="text-2xl font-black text-lbBeige-textMain dark:text-lbDark-textMain mb-2">
+            Welcome to Your Flix Profile
+          </h2>
+          <p className="text-sm text-lbBeige-textMuted dark:text-lbDark-textMuted max-w-md mx-auto mb-8">
+            Sign in or choose one of our demonstration personas to preview your personalized watchlist, logging history, and taste centroid.
+          </p>
+
+          <button
+            onClick={() => onOpenAuthModal && onOpenAuthModal('login')}
+            className="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-brand-green text-black hover:bg-emerald-400 active:scale-95 transition-all shadow-md mb-8"
+          >
+            Sign In / Register
+          </button>
+
+          <div className="pt-8 border-t border-lbBeige-border dark:border-lbDark-border text-left">
+            <p className="text-xs font-bold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-4 text-center">
+              Or Instant 1-Click Demo Personas:
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {DEMO_PERSONAS.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => handleSwitchPersona(p)}
+                  className="p-3.5 rounded-xl border text-left transition-all active:scale-95 hover:border-brand-green
+                    bg-lbBeige-bg border-lbBeige-border dark:bg-lbDark-bg dark:border-lbDark-border"
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-sm text-lbBeige-textMain dark:text-lbDark-textMain">
+                      {p.name}
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-green/20 text-brand-green">
+                      {p.badge}
+                    </span>
+                  </div>
+                  <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted">
+                    {p.taste}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="space-y-8 animate-in fade-in">
-      
-      {/* Profile Header */}
-      <div className="p-6 sm:p-8 rounded-2xl border transition-all
-        bg-lbBeige-surface border-lbBeige-border
-        dark:bg-lbDark-surface dark:border-lbDark-border">
-        
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-          <img
-            src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'}
-            alt={currentUser.name}
-            className="w-24 h-24 rounded-full object-cover ring-4 ring-brand-green/30 shadow-xl"
-          />
+  const initials = currentUser.username
+    ? currentUser.username.substring(0, 2).toUpperCase()
+    : 'FX';
 
-          <div className="flex-1 text-center sm:text-left">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-              <h1 className="text-2xl font-extrabold font-sans">
-                {currentUser.name || currentUser.username}
-              </h1>
-              {currentUser.badge && (
-                <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${currentUser.badgeColor}`}>
-                  {currentUser.badge}
-                </span>
-              )}
+  return (
+    <div className="py-6 max-w-6xl mx-auto pb-24">
+      
+      {/* Profile Header Card */}
+      <div className="p-6 sm:p-8 rounded-2xl border mb-8 bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          
+          {/* User Details */}
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center font-extrabold text-xl text-black bg-gradient-to-tr from-brand-green via-emerald-400 to-teal-300 shadow-md ring-4 ring-brand-green/20">
+              {initials}
             </div>
 
-            <p className="text-xs font-mono text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
-              {currentUser.email} • Member since {currentUser.createdAt ? new Date(currentUser.createdAt).toLocaleDateString() : '2026'}
-            </p>
-
-            {currentUser.bio && (
-              <p className="mt-3 text-xs leading-relaxed max-w-2xl text-zinc-700 dark:text-zinc-300">
-                {currentUser.bio}
-              </p>
-            )}
-
-            {/* Favorite Genres */}
-            {currentUser.favoriteGenres && (
-              <div className="mt-4 flex flex-wrap items-center justify-center sm:justify-start gap-1.5">
-                <span className="text-[11px] font-mono text-lbBeige-textMuted dark:text-lbDark-textMuted mr-1">
-                  Taste:
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-black tracking-tight text-lbBeige-textMain dark:text-lbDark-textMain">
+                  {currentUser.username}
+                </h1>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-green/15 text-brand-green border border-brand-green/30">
+                  {tasteTitle}
                 </span>
-                {(Array.isArray(currentUser.favoriteGenres) ? currentUser.favoriteGenres : JSON.parse(currentUser.favoriteGenres || '[]')).map((g, idx) => (
-                  <span
-                    key={idx}
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-full border
-                      bg-lbBeige-card border-lbBeige-border text-zinc-800
-                      dark:bg-lbDark-card dark:border-lbDark-border dark:text-zinc-200"
-                  >
-                    {g}
-                  </span>
-                ))}
               </div>
-            )}
+              <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5 font-mono">
+                {currentUser.email}
+              </p>
+            </div>
           </div>
+
+          {/* Stats Badges */}
+          <div className="flex items-center gap-4 sm:gap-6 border-t sm:border-t-0 sm:border-l border-lbBeige-border dark:border-lbDark-border pt-4 sm:pt-0 sm:pl-6">
+            <div className="text-center">
+              <span className="block text-2xl font-black text-lbBeige-textMain dark:text-lbDark-textMain font-mono">
+                {watchlist.length}
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted flex items-center gap-1">
+                <Bookmark className="w-3 h-3 text-brand-orange" /> Watchlist
+              </span>
+            </div>
+
+            <div className="text-center">
+              <span className="block text-2xl font-black text-lbBeige-textMain dark:text-lbDark-textMain font-mono">
+                {watched.length}
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted flex items-center gap-1">
+                <Eye className="w-3 h-3 text-brand-green" /> Watched
+              </span>
+            </div>
+
+            <button
+              onClick={logout}
+              className="p-2.5 rounded-xl border text-lbBeige-textMuted hover:text-red-500 hover:border-red-500/50 dark:text-lbDark-textMuted dark:hover:text-red-400 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
 
-        {/* Letterboxd-style Statistics Ribbon */}
-        <div className="mt-8 pt-6 border-t grid grid-cols-3 gap-4 text-center border-lbBeige-border dark:border-lbDark-border">
-          <div 
-            onClick={() => setSubTab('watched')}
-            className={`cursor-pointer p-3 rounded-xl transition-all ${
-              subTab === 'watched' ? 'bg-brand-green/10 border border-brand-green/30' : 'hover:bg-zinc-500/5'
-            }`}
-          >
-            <div className="text-2xl font-extrabold font-mono text-brand-green">
-              {watchedList.length}
-            </div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
-              Films Logged
-            </div>
-          </div>
-
-          <div 
-            onClick={() => setSubTab('watchlist')}
-            className={`cursor-pointer p-3 rounded-xl transition-all ${
-              subTab === 'watchlist' ? 'bg-amber-400/10 border border-amber-400/30' : 'hover:bg-zinc-500/5'
-            }`}
-          >
-            <div className="text-2xl font-extrabold font-mono text-amber-500 dark:text-amber-400">
-              {watchlist.length}
-            </div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
-              In Watchlist
-            </div>
-          </div>
-
-          <div 
-            onClick={() => setSubTab('ratings')}
-            className={`cursor-pointer p-3 rounded-xl transition-all ${
-              subTab === 'ratings' ? 'bg-brand-blue/10 border border-brand-blue/30' : 'hover:bg-zinc-500/5'
-            }`}
-          >
-            <div className="text-2xl font-extrabold font-mono text-brand-blue">
-              {ratings.length}
-            </div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
-              Rated & Reviewed
-            </div>
+        {/* 1-Click Demo Persona Switcher */}
+        <div className="mt-6 pt-5 border-t border-lbBeige-border/60 dark:border-lbDark-border/60">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2 flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5 text-brand-green" /> Quick Switch Demonstration Persona:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {DEMO_PERSONAS.map((p) => {
+              const isSelected = currentUser?.email === p.email;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => handleSwitchPersona(p)}
+                  disabled={switchingPersona || isSelected}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                    isSelected
+                      ? 'bg-brand-rust text-white dark:bg-brand-green dark:text-black shadow-sm font-bold'
+                      : 'bg-lbBeige-bg border border-lbBeige-border text-lbBeige-textMain hover:border-brand-green dark:bg-lbDark-bg dark:border-lbDark-border dark:text-lbDark-textMain'
+                  }`}
+                >
+                  <span>{p.name}</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isSelected ? 'bg-black/20 text-white dark:text-black' : 'bg-white/10 text-zinc-400'}`}>
+                    {p.badge}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
       </div>
 
-      {/* SubTab Navigation */}
-      <div className="flex items-center gap-2 border-b border-lbBeige-border dark:border-lbDark-border pb-3">
+      {/* Navigation Sub-Tabs: Watchlist vs Watched */}
+      <div className="flex items-center gap-3 border-b border-lbBeige-border dark:border-lbDark-border mb-8">
         <button
-          onClick={() => setSubTab('watched')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-            subTab === 'watched'
-              ? 'bg-brand-green text-black'
-              : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
+          onClick={() => setActiveSubTab('watchlist')}
+          className={`flex items-center gap-2 pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-all ${
+            activeSubTab === 'watchlist'
+              ? 'border-brand-rust text-brand-rust dark:border-brand-green dark:text-brand-green'
+              : 'border-transparent text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
           }`}
         >
-          <Eye className="w-3.5 h-3.5" />
-          Watched Films ({watchedList.length})
-        </button>
-
-        <button
-          onClick={() => setSubTab('watchlist')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-            subTab === 'watchlist'
-              ? 'bg-amber-400 text-black'
-              : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
-          }`}
-        >
-          <Bookmark className="w-3.5 h-3.5" />
+          <Bookmark className="w-4 h-4" />
           Watchlist ({watchlist.length})
         </button>
 
         <button
-          onClick={() => setSubTab('ratings')}
-          className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
-            subTab === 'ratings'
-              ? 'bg-brand-blue text-black'
-              : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
+          onClick={() => setActiveSubTab('watched')}
+          className={`flex items-center gap-2 pb-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-all ${
+            activeSubTab === 'watched'
+              ? 'border-brand-rust text-brand-rust dark:border-brand-green dark:text-brand-green'
+              : 'border-transparent text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
           }`}
         >
-          <Star className="w-3.5 h-3.5" />
-          Ratings Log ({ratings.length})
+          <Eye className="w-4 h-4" />
+          Watched History ({watched.length})
         </button>
       </div>
 
-      {/* Tab Content */}
+      {/* Grid Content */}
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="aspect-[2/3] w-full rounded-lg bg-zinc-300 dark:bg-zinc-800/40 mb-2" />
-              <div className="h-3 w-3/4 bg-zinc-300 dark:bg-zinc-800/40 rounded mb-1" />
-            </div>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-[2/3] rounded-lg animate-pulse bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
+            />
           ))}
         </div>
-      ) : subTab === 'watched' ? (
-        watchedList.length === 0 ? (
-          <p className="text-xs text-center py-12 text-lbBeige-textMuted dark:text-lbDark-textMuted">
-            No films marked as watched yet.
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {watchedList.map((m) => (
-              <MovieCard
-                key={m.id}
-                movie={m}
-                isWatched={true}
-                onClick={() => onMovieClick(m.id)}
-                onActivityChanged={() => loadUserData(currentUser.id)}
-              />
-            ))}
-          </div>
-        )
-      ) : subTab === 'watchlist' ? (
+      ) : activeSubTab === 'watchlist' ? (
         watchlist.length === 0 ? (
-          <p className="text-xs text-center py-12 text-lbBeige-textMuted dark:text-lbDark-textMuted">
-            Your watchlist is empty. Browse movies to add films to your queue.
-          </p>
+          <div className="py-16 text-center rounded-2xl border border-dashed border-lbBeige-border dark:border-lbDark-border">
+            <Bookmark className="w-10 h-10 mx-auto text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2 opacity-40" />
+            <p className="text-sm font-bold text-lbBeige-textMain dark:text-lbDark-textMain">
+              Your watchlist is currently empty
+            </p>
+            <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
+              Browse movies on the Home or Search tab and click "+ Watchlist" to save films you want to see.
+            </p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {watchlist.map((m) => (
+            {watchlist.map((movie) => (
               <MovieCard
-                key={m.id}
-                movie={m}
+                key={movie.id}
+                movie={movie}
                 isInWatchlist={true}
-                onClick={() => onMovieClick(m.id)}
-                onActivityChanged={() => loadUserData(currentUser.id)}
+                onActivityChanged={handleActivityChanged}
+                onClick={() => onMovieClick && onMovieClick(movie.id)}
               />
             ))}
           </div>
         )
       ) : (
-        ratings.length === 0 ? (
-          <p className="text-xs text-center py-12 text-lbBeige-textMuted dark:text-lbDark-textMuted">
-            No ratings recorded yet.
-          </p>
+        watched.length === 0 ? (
+          <div className="py-16 text-center rounded-2xl border border-dashed border-lbBeige-border dark:border-lbDark-border">
+            <Eye className="w-10 h-10 mx-auto text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2 opacity-40" />
+            <p className="text-sm font-bold text-lbBeige-textMain dark:text-lbDark-textMain">
+              No watched films logged yet
+            </p>
+            <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
+              Mark movies as watched or submit star ratings to calibrate your taste profile!
+            </p>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {ratings.map((r, idx) => (
-              <div
-                key={idx}
-                onClick={() => onMovieClick(r.movieId)}
-                className="cursor-pointer p-4 rounded-xl border flex items-center justify-between gap-4 transition-all
-                  bg-lbBeige-card border-lbBeige-border hover:border-brand-rust
-                  dark:bg-lbDark-card dark:border-lbDark-border dark:hover:border-brand-green"
-              >
-                <div>
-                  <h4 className="font-bold text-sm">{r.title || `Movie #${r.movieId}`}</h4>
-                  <p className="text-[11px] text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
-                    Rated on {r.updatedAt ? new Date(r.updatedAt).toLocaleDateString() : 'Recent'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-1 font-mono font-bold text-sm px-2.5 py-1 rounded-lg bg-amber-400 text-black">
-                  <Star className="w-3.5 h-3.5 fill-black text-black" />
-                  <span>{r.rating} / 5</span>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {watched.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                isWatched={true}
+                onActivityChanged={handleActivityChanged}
+                onClick={() => onMovieClick && onMovieClick(movie.id)}
+              />
             ))}
           </div>
         )

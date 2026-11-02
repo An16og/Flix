@@ -29,6 +29,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [posterError, setPosterError] = useState(false);
 
   useEffect(() => {
     if (!movieId) return;
@@ -164,16 +165,21 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                 
                 {/* Poster */}
                 <div className="w-36 sm:w-48 aspect-[2/3] shrink-0 rounded-xl overflow-hidden border-2 shadow-2xl
-                  border-lbBeige-border dark:border-lbDark-border">
-                  <img 
-                    src={posterUrl} 
-                    alt={movie.title} 
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80';
-                    }}
-                  />
+                  border-lbBeige-border dark:border-lbDark-border bg-zinc-900">
+                  {!posterError ? (
+                    <img 
+                      src={posterUrl} 
+                      alt={movie.title} 
+                      className="w-full h-full object-cover"
+                      onError={() => setPosterError(true)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-zinc-800 to-black text-white select-none">
+                      <span className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">Flix Cinema</span>
+                      <h2 className="font-serif font-extrabold text-base leading-tight my-auto text-zinc-100">{movie.title}</h2>
+                      <span className="text-[10px] font-mono text-amber-400">★ {movie.voteAverage ? movie.voteAverage.toFixed(1) : ''}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Header Information */}

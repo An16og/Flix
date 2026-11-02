@@ -329,11 +329,12 @@ public class RecommendationService {
     }
 
     private String vectorToString(float[] vector) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < vector.length; i++) {
             if (i > 0) sb.append(',');
             sb.append(vector[i]);
         }
+        sb.append(']');
         return sb.toString();
     }
 
@@ -342,3 +343,4 @@ public class RecommendationService {
         return Math.round(val * 1000.0) / 1000.0;
     }
 }
+

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="greenGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00ff66"/>
+      <stop offset="100%" stop-color="#00b341"/>
+    </radialGradient>
+    <radialGradient id="orangeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff9933"/>
+      <stop offset="100%" stop-color="#e65c00"/>
+    </radialGradient>
+    <radialGradient id="blueGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38d4ff"/>
+      <stop offset="100%" stop-color="#0088cc"/>
+    </radialGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="64" height="64" rx="16" fill="#14181c"/>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="#2c3742" stroke-width="2"/>
+  
+  <!-- Overlapping Letterboxd Inspired Trio -->
+  <g transform="translate(4, 4)">
+    <!-- Orange circle (left) -->
+    <circle cx="20" cy="28" r="13" fill="url(#orangeGlow)" opacity="0.9" style="mix-blend-mode: screen;"/>
+    <!-- Green circle (center) -->
+    <circle cx="28" cy="28" r="13" fill="url(#greenGlow)" opacity="0.95" style="mix-blend-mode: screen;"/>
+    <!-- Cyan circle (right) -->
+    <circle cx="36" cy="28" r="13" fill="url(#blueGlow)" opacity="0.9" style="mix-blend-mode: screen;"/>
+  </g>
+</svg>

@@ -171,7 +171,7 @@ public class MovieService {
         if (jsonString == null || jsonString.isBlank()) return Collections.emptyList();
         List<String> names = new ArrayList<>();
         try {
-            JsonNode root = lenientMapper.readTree(jsonString);
+            JsonNode root = lenientMapper.readTree(sanitizePythonJson(jsonString));
             if (root.isArray()) {
                 for (JsonNode item : root) {
                     if (item.has("name")) {
@@ -179,14 +179,16 @@ public class MovieService {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.debug("Failed to parse names JSON: {}", e.getMessage());
+        }
         return names;
     }
 
     private void parseCast(String castJson, List<CastMemberDto> castList) {
         if (castJson == null || castJson.isBlank()) return;
         try {
-            JsonNode root = lenientMapper.readTree(castJson);
+            JsonNode root = lenientMapper.readTree(sanitizePythonJson(castJson));
             if (root.isArray()) {
                 int count = 0;
                 for (JsonNode node : root) {
@@ -197,13 +199,15 @@ public class MovieService {
                     castList.add(new CastMemberDto(name, character, profile, buildProfileUrl(profile)));
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.debug("Failed to parse cast JSON: {}", e.getMessage());
+        }
     }
 
     private void parseDirectors(String crewJson, List<String> directors) {
         if (crewJson == null || crewJson.isBlank()) return;
         try {
-            JsonNode root = lenientMapper.readTree(crewJson);
+            JsonNode root = lenientMapper.readTree(sanitizePythonJson(crewJson));
             if (root.isArray()) {
                 for (JsonNode node : root) {
                     if ("Director".equalsIgnoreCase(node.path("job").asText())) {
@@ -211,13 +215,15 @@ public class MovieService {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.debug("Failed to parse directors JSON: {}", e.getMessage());
+        }
     }
 
     private void parseKeywords(String keywordsJson, List<String> keywords) {
         if (keywordsJson == null || keywordsJson.isBlank()) return;
         try {
-            JsonNode root = lenientMapper.readTree(keywordsJson);
+            JsonNode root = lenientMapper.readTree(sanitizePythonJson(keywordsJson));
             if (root.isArray()) {
                 int count = 0;
                 for (JsonNode node : root) {
@@ -225,6 +231,15 @@ public class MovieService {
                     keywords.add(node.path("name").asText());
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            log.debug("Failed to parse keywords JSON: {}", e.getMessage());
+        }
+    }
+
+    private String sanitizePythonJson(String json) {
+        if (json == null || json.isBlank()) return null;
+        return json.replace(": None", ": null")
+                   .replace(": True", ": true")
+                   .replace(": False", ": false");
     }
 }

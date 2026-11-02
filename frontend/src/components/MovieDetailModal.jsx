@@ -5,17 +5,15 @@ import {
   Eye, 
   Bookmark, 
   MessageSquare, 
-  Sparkles, 
   Clock, 
-  Calendar, 
   ExternalLink,
   Send,
-  User,
-  Check
+  Check,
+  Film
 } from 'lucide-react';
 import { movieApi, recommendationApi, activityApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { getPosterUrl, getProfileUrl } from '../utils/imageUtils';
+import { getPosterUrl, getProfileUrl, getPlaceholderPoster, handlePosterError } from '../utils/imageUtils';
 
 export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) {
   const { currentUser } = useAuth();
@@ -38,6 +36,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
 
   const loadMovieDetails = async () => {
     setLoading(true);
+    setPosterError(false);
     try {
       const [detailData, similarData, reviewData] = await Promise.all([
         movieApi.getDetail(movieId),
@@ -127,7 +126,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
   const releaseYear = movie?.releaseDate ? movie.releaseDate.split('-')[0] : '';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in">
       <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl border shadow-2xl transition-all
         bg-lbBeige-surface border-lbBeige-border text-lbBeige-textMain
         dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMain">
@@ -142,7 +141,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
 
         {loading ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-brand-green border-t-transparent animate-spin" />
+            <div className="w-8 h-8 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
             <p className="text-xs font-mono text-lbBeige-textMuted dark:text-lbDark-textMuted">
               Fetching cinematic metadata...
             </p>
@@ -150,11 +149,12 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
         ) : movie ? (
           <div>
             {/* Cinematic Hero Backdrop */}
-            <div className="relative w-full h-56 sm:h-72 overflow-hidden bg-black/90">
+            <div className="relative w-full h-56 sm:h-72 overflow-hidden bg-black/95">
               <img
                 src={posterUrl}
                 alt={movie.title}
                 className="w-full h-full object-cover opacity-25 filter blur-lg scale-110"
+                onError={(e) => handlePosterError(e, movie)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-lbBeige-surface dark:from-lbDark-surface via-transparent to-black/60" />
             </div>
@@ -171,13 +171,16 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                       src={posterUrl} 
                       alt={movie.title} 
                       className="w-full h-full object-cover"
-                      onError={() => setPosterError(true)}
+                      onError={(e) => {
+                        setPosterError(true);
+                        handlePosterError(e, movie);
+                      }}
                     />
                   ) : (
-                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-zinc-800 to-black text-white select-none">
-                      <span className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">Flix Cinema</span>
+                    <div className="w-full h-full flex flex-col justify-between p-4 bg-gradient-to-br from-zinc-900 to-black text-white select-none border border-white/10">
+                      <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider">Flix Archive</span>
                       <h2 className="font-serif font-extrabold text-base leading-tight my-auto text-zinc-100">{movie.title}</h2>
-                      <span className="text-[10px] font-mono text-amber-400">★ {movie.voteAverage ? movie.voteAverage.toFixed(1) : ''}</span>
+                      <span className="text-[10px] font-mono text-amber-400">★ {movie.voteAverage ? Number(movie.voteAverage).toFixed(1) : ''}</span>
                     </div>
                   )}
                 </div>
@@ -220,7 +223,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
 
                   {/* Tagline */}
                   {movie.tagline && (
-                    <p className="mt-3 text-xs italic opacity-80 border-l-2 pl-2.5 border-brand-rust dark:border-brand-green">
+                    <p className="mt-3 text-xs italic opacity-85 border-l-2 pl-2.5 border-brand-rust dark:border-amber-400">
                       "{movie.tagline}"
                     </p>
                   )}
@@ -239,7 +242,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                     ))}
                   </div>
 
-                  {/* Letterboxd Action Toolbar */}
+                  {/* Action Toolbar */}
                   <div className="mt-5 p-3 rounded-xl border flex flex-wrap items-center justify-between gap-4
                     bg-lbBeige-card border-lbBeige-border
                     dark:bg-lbDark-card dark:border-lbDark-border">
@@ -250,7 +253,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                         onClick={handleToggleWatched}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           watched
-                            ? 'bg-brand-green text-black'
+                            ? 'bg-amber-400 text-black shadow-sm'
                             : 'border border-lbBeige-border hover:bg-lbBeige-hover dark:border-lbDark-border dark:hover:bg-lbDark-hover'
                         }`}
                       >
@@ -263,7 +266,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                         onClick={handleToggleWatchlist}
                         className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           inWatchlist
-                            ? 'bg-amber-400 text-black'
+                            ? 'bg-amber-400 text-black shadow-sm'
                             : 'border border-lbBeige-border hover:bg-lbBeige-hover dark:border-lbDark-border dark:hover:bg-lbDark-hover'
                         }`}
                       >
@@ -356,7 +359,7 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
               {similarMovies && similarMovies.length > 0 && (
                 <div className="mt-8">
                   <div className="flex items-center gap-2 mb-3">
-                    <Film className="w-4 h-4 text-brand-green" />
+                    <Film className="w-4 h-4 text-amber-400" />
                     <h3 className="text-xs font-bold font-mono uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted">
                       More Like This
                     </h3>
@@ -368,17 +371,14 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                         onClick={() => onMovieSelected && onMovieSelected(sim.id)}
                         className="cursor-pointer group flex flex-col"
                       >
-                        <div className="aspect-[2/3] w-full rounded-lg overflow-hidden border transition-all duration-300
+                        <div className="aspect-[2/3] w-full rounded-xl overflow-hidden border transition-all duration-300
                           bg-lbBeige-surface border-lbBeige-border group-hover:border-brand-rust
-                          dark:bg-lbDark-surface dark:border-lbDark-border group-hover:dark:border-brand-green group-hover:scale-105">
+                          dark:bg-lbDark-surface dark:border-lbDark-border group-hover:dark:border-amber-400 group-hover:scale-105">
                           <img
                             src={getPosterUrl(sim)}
                             alt={sim.title}
                             className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=300&q=80';
-                            }}
+                            onError={(e) => handlePosterError(e, sim)}
                           />
                         </div>
                         <p className="mt-1 text-[11px] font-semibold truncate group-hover:underline">
@@ -409,15 +409,15 @@ export default function MovieDetailModal({ movieId, onClose, onMovieSelected }) 
                         rows={3}
                         value={reviewText}
                         onChange={(e) => setReviewText(e.target.value)}
-                        placeholder={`Write your Letterboxd-style thoughts on ${movie.title}...`}
+                        placeholder={`Write your thoughts on ${movie.title}...`}
                         className="w-full p-3 pr-20 rounded-xl text-xs border focus:outline-none transition-all resize-none
                           bg-lbBeige-card border-lbBeige-border focus:border-brand-rust
-                          dark:bg-lbDark-card dark:border-lbDark-border dark:focus:border-brand-green"
+                          dark:bg-lbDark-card dark:border-lbDark-border dark:focus:border-amber-400"
                       />
                       <button
                         type="submit"
                         disabled={submittingReview || !reviewText.trim()}
-                        className="absolute right-3 bottom-3.5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-brand-green text-black hover:bg-emerald-400 disabled:opacity-50"
+                        className="absolute right-3 bottom-3.5 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-amber-400 text-black hover:bg-amber-300 disabled:opacity-50 shadow-sm"
                       >
                         <Send className="w-3 h-3" />
                         Post

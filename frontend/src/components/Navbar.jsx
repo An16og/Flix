@@ -31,7 +31,11 @@ export default function Navbar({
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md border-b transition-colors duration-200
       bg-lbBeige-bg/95 border-lbBeige-border text-lbBeige-textMain
-      dark:bg-lbDark-bg/95 dark:border-lbDark-border dark:text-lbDark-textMain">
+      dark:bg-lbDark-bg/95 dark:border-lbDark-border/80 dark:text-lbDark-textMain">
+      
+      {/* Subtle top gold shimmer line */}
+      <div className="h-[1.5px] w-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -42,7 +46,7 @@ export default function Navbar({
               className="flex items-center gap-2.5 group focus:outline-none"
             >
               {/* Cinema Brand Logo */}
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-rust text-white dark:bg-brand-green dark:text-black shadow-md group-hover:scale-105 transition-transform">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-rust text-white dark:bg-amber-400 dark:text-black shadow-md group-hover:scale-105 transition-transform">
                 <Film className="w-4 h-4" />
               </div>
               <span className="font-black tracking-wider text-xl uppercase font-sans">
@@ -56,7 +60,7 @@ export default function Navbar({
                 onClick={() => setActiveTab('home')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                   activeTab === 'home'
-                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-brand-green shadow-sm'
+                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-amber-400 border border-amber-400/20 shadow-sm'
                     : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
                 }`}
               >
@@ -68,7 +72,7 @@ export default function Navbar({
                 onClick={() => setActiveTab('search')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                   activeTab === 'search'
-                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-brand-green shadow-sm'
+                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-amber-400 border border-amber-400/20 shadow-sm'
                     : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
                 }`}
               >
@@ -80,7 +84,7 @@ export default function Navbar({
                 onClick={() => setActiveTab('profile')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                   activeTab === 'profile'
-                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-brand-green shadow-sm'
+                    ? 'bg-lbBeige-surface text-brand-rust dark:bg-lbDark-surface dark:text-amber-400 border border-amber-400/20 shadow-sm'
                     : 'text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white'
                 }`}
               >
@@ -98,59 +102,64 @@ export default function Navbar({
               onClick={toggleTheme}
               className="p-2 rounded-xl border transition-all text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white
                 bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border"
-              title={theme === 'dark' ? 'Switch to Editorial Beige' : 'Switch to Letterboxd Dark'}
+              title={`Switch to ${theme === 'dark' ? 'Beige' : 'Dark'} theme`}
               aria-label="Toggle theme"
             >
               {theme === 'dark' ? (
                 <Sun className="w-4 h-4 text-amber-400" />
               ) : (
-                <Moon className="w-4 h-4 text-zinc-600" />
+                <Moon className="w-4 h-4 text-stone-700" />
               )}
             </button>
 
-            {/* User Dropdown or Sign In */}
+            {/* User Login / Profile Pill */}
             {currentUser ? (
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 p-1.5 pr-2.5 rounded-xl border transition-all active:scale-95
+                  className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl border transition-all
                     bg-lbBeige-surface border-lbBeige-border hover:border-brand-rust
-                    dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:border-brand-green"
+                    dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:border-amber-400/60"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs bg-brand-green text-black">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs bg-gradient-to-tr from-amber-400 to-amber-500 text-black shadow-sm">
                     {initials}
                   </div>
-                  <span className="hidden sm:inline text-xs font-bold">
+                  <span className="text-xs font-semibold max-w-[100px] truncate">
                     {currentUser.username}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-60" />
                 </button>
 
                 {dropdownOpen && (
-                  <div 
-                    className="absolute right-0 mt-2 w-48 rounded-2xl shadow-xl border p-1.5 z-50 text-xs
-                      bg-lbBeige-surface border-lbBeige-border text-lbBeige-textMain
-                      dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMain"
+                  <div
+                    className="absolute right-0 mt-2 w-48 rounded-xl border shadow-xl py-1.5 z-50 animate-in fade-in
+                      bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border"
                     onMouseLeave={() => setDropdownOpen(false)}
                   >
-                    <div className="px-3 py-2 border-b border-lbBeige-border/50 dark:border-lbDark-border/50">
-                      <p className="font-bold truncate">{currentUser.username}</p>
-                      <p className="text-[11px] text-lbBeige-textMuted dark:text-lbDark-textMuted truncate font-mono">
+                    <div className="px-4 py-2 border-b border-lbBeige-border dark:border-lbDark-border">
+                      <p className="text-xs font-bold truncate">{currentUser.username}</p>
+                      <p className="text-[10px] text-lbBeige-textMuted dark:text-lbDark-textMuted truncate">
                         {currentUser.email}
                       </p>
                     </div>
 
                     <button
-                      onClick={() => { setActiveTab('profile'); setDropdownOpen(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left hover:bg-lbBeige-hover dark:hover:bg-lbDark-hover mt-1"
+                      onClick={() => {
+                        setActiveTab('profile');
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-xs flex items-center gap-2 hover:bg-lbBeige-hover dark:hover:bg-lbDark-hover"
                     >
-                      <User className="w-3.5 h-3.5" />
-                      View Profile & Stats
+                      <User className="w-3.5 h-3.5 text-amber-400" />
+                      View Profile
                     </button>
 
                     <button
-                      onClick={() => { logout(); setDropdownOpen(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left text-red-500 hover:bg-red-500/10 mt-1"
+                      onClick={() => {
+                        logout();
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-xs flex items-center gap-2 text-red-500 hover:bg-red-500/10"
                     >
                       <LogOut className="w-3.5 h-3.5" />
                       Sign Out
@@ -161,9 +170,8 @@ export default function Navbar({
             ) : (
               <button
                 onClick={() => onOpenAuthModal && onOpenAuthModal('login')}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-sm active:scale-95
-                  bg-brand-rust text-white hover:bg-orange-600
-                  dark:bg-brand-green dark:text-black dark:hover:bg-emerald-400"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all
+                  bg-brand-rust text-white hover:bg-orange-600 dark:bg-amber-400 dark:text-black dark:hover:bg-amber-300 shadow-sm"
               >
                 <LogIn className="w-3.5 h-3.5" />
                 Sign In

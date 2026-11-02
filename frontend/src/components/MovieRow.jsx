@@ -27,12 +27,12 @@ export default function MovieRow({
       <div className="flex items-end justify-between mb-4 px-1">
         <div>
           <div className="flex items-center gap-2">
-            {Icon && <Icon className="w-4 h-4 text-brand-green dark:text-brand-green" />}
+            {Icon && <Icon className="w-4 h-4 text-amber-400" />}
             <h2 className="text-lg sm:text-xl font-bold tracking-tight text-lbBeige-textMain dark:text-lbDark-textMain">
               {title}
             </h2>
             {badge && (
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-green/15 text-brand-green dark:bg-brand-green/20 dark:text-brand-green border border-brand-green/30">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-400 border border-amber-400/30">
                 {badge}
               </span>
             )}
@@ -51,7 +51,7 @@ export default function MovieRow({
               onClick={() => scroll('left')}
               className="p-1.5 rounded-lg border transition-all active:scale-95
                 bg-lbBeige-surface border-lbBeige-border hover:bg-lbBeige-hover text-lbBeige-textMain
-                dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:text-lbDark-textMain"
+                dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:hover:border-amber-400/50 dark:text-lbDark-textMain"
               aria-label="Scroll left"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -60,7 +60,7 @@ export default function MovieRow({
               onClick={() => scroll('right')}
               className="p-1.5 rounded-lg border transition-all active:scale-95
                 bg-lbBeige-surface border-lbBeige-border hover:bg-lbBeige-hover text-lbBeige-textMain
-                dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:text-lbDark-textMain"
+                dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:hover:border-amber-400/50 dark:text-lbDark-textMain"
               aria-label="Scroll right"
             >
               <ChevronRight className="w-4 h-4" />
@@ -75,7 +75,7 @@ export default function MovieRow({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="w-36 sm:w-44 flex-shrink-0 aspect-[2/3] rounded-lg animate-pulse 
+              className="w-36 sm:w-44 flex-shrink-0 aspect-[2/3] rounded-xl animate-pulse 
                 bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
             />
           ))}

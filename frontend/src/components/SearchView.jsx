@@ -115,7 +115,7 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
           Search Flix Cinema
         </h1>
         <p className="text-xs sm:text-sm text-lbBeige-textMuted dark:text-lbDark-textMuted">
-          Discover movies using natural language semantic matching or traditional keyword titles
+          Discover movies using natural language story matching or traditional title search
         </p>
       </div>
 
@@ -124,7 +124,7 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
         <form onSubmit={handleSubmit} className="relative flex items-center">
           <div className="absolute left-4 text-lbBeige-textMuted dark:text-lbDark-textMuted">
             {searchMode === 'semantic' ? (
-              <Sparkles className="w-5 h-5 text-brand-green" />
+              <Sparkles className="w-5 h-5 text-amber-400" />
             ) : (
               <Search className="w-5 h-5" />
             )}
@@ -137,11 +137,11 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
             placeholder={
               searchMode === 'semantic'
                 ? "Describe what you want: e.g. 'mind-bending sci-fi with time travel'..."
-                : "Search title: e.g. 'Inception', 'Pulp Fiction'..."
+                : "Search title: e.g. 'Inception', 'The Dark Knight'..."
             }
             className="w-full pl-12 pr-28 py-3.5 rounded-2xl border text-sm transition-all focus:outline-none focus:ring-2 shadow-sm
               bg-lbBeige-surface border-lbBeige-border text-lbBeige-textMain focus:ring-brand-rust/30
-              dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMain dark:focus:ring-brand-green/30"
+              dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMain dark:focus:ring-amber-400/30 dark:focus:border-amber-400/50"
           />
 
           {query && (
@@ -159,7 +159,7 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
             disabled={loading || !query.trim()}
             className="absolute right-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all
               bg-brand-rust text-white hover:bg-orange-600 disabled:opacity-40
-              dark:bg-brand-green dark:text-black dark:hover:bg-emerald-400"
+              dark:bg-amber-400 dark:text-black dark:hover:bg-amber-300 shadow-md"
           >
             {loading ? 'Searching...' : 'Search'}
           </button>
@@ -173,11 +173,11 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
               onClick={() => setSearchMode('semantic')}
               className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                 searchMode === 'semantic'
-                  ? 'bg-brand-green/20 text-brand-green border border-brand-green/40 font-bold'
+                  ? 'bg-amber-400/20 text-amber-400 border border-amber-400/40 font-bold'
                   : 'text-lbBeige-textMuted dark:text-lbDark-textMuted hover:text-black dark:hover:text-white'
               }`}
             >
-              <Film className="w-3.5 h-3.5 text-brand-green" />
+              <Film className="w-3.5 h-3.5 text-amber-400" />
               Smart Story & Mood Search
             </button>
 
@@ -206,7 +206,7 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
         <div className="max-w-2xl mx-auto mb-8 p-4 rounded-xl border bg-lbBeige-surface/40 border-lbBeige-border/60 dark:bg-lbDark-surface/40 dark:border-lbDark-border/60">
           <div className="flex items-center justify-between mb-2.5">
             <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted">
-              <Clock className="w-3.5 h-3.5" /> Recent Searches
+              <Clock className="w-3.5 h-3.5 text-amber-400" /> Recent Searches
             </span>
             <button
               onClick={clearAllRecent}
@@ -221,15 +221,15 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
               <div
                 key={idx}
                 onClick={() => handleChipClick(item)}
-                className="group flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium cursor-pointer transition-all
+                className="group flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs cursor-pointer transition-all
                   bg-lbBeige-surface border border-lbBeige-border hover:border-brand-rust text-lbBeige-textMain
-                  dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:border-brand-green dark:text-lbDark-textMain"
+                  dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:border-amber-400/50 dark:text-lbDark-textMain"
               >
                 <span>{item}</span>
                 <button
+                  type="button"
                   onClick={(e) => removeRecentSearch(e, item)}
-                  className="opacity-50 hover:opacity-100 p-0.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
-                  aria-label="Remove"
+                  className="opacity-40 hover:opacity-100 hover:text-red-500 transition-opacity ml-1"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -239,22 +239,23 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
         </div>
       )}
 
-      {/* Suggested Inspiration Prompts */}
-      {results.length === 0 && !loading && (
+      {/* Suggested Search Prompt Pills */}
+      {!searchedQuery && results.length === 0 && (
         <div className="max-w-2xl mx-auto mb-12">
-          <p className="text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2.5">
-            Try Asking AI
+          <p className="text-xs font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-3 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Suggested Story Inquiries:
           </p>
           <div className="flex flex-wrap gap-2">
             {SUGGESTED_PROMPTS.map((prompt, idx) => (
               <button
                 key={idx}
                 onClick={() => handleChipClick(prompt)}
-                className="text-left text-xs px-3 py-1.5 rounded-xl border transition-all active:scale-95
-                  bg-lbBeige-surface/70 border-lbBeige-border hover:bg-lbBeige-hover text-lbBeige-textMain
-                  dark:bg-lbDark-surface/70 dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:text-lbDark-textMain"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-medium border text-left transition-all active:scale-95
+                  bg-lbBeige-surface border-lbBeige-border hover:border-brand-rust text-lbBeige-textMain
+                  dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:border-amber-400/50 dark:text-lbDark-textMain flex items-center gap-1.5"
               >
-                "{prompt}"
+                <span>{prompt}</span>
+                <ArrowRight className="w-3 h-3 opacity-40 group-hover:opacity-100 text-amber-400" />
               </button>
             ))}
           </div>
@@ -263,13 +264,15 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
 
       {/* Results Header */}
       {searchedQuery && (
-        <div className="flex items-center justify-between mb-6 pb-2 border-b border-lbBeige-border dark:border-lbDark-border">
-          <h2 className="text-lg font-bold text-lbBeige-textMain dark:text-lbDark-textMain flex items-center gap-2">
-            Results for <span className="text-brand-rust dark:text-brand-green">"{searchedQuery}"</span>
-          </h2>
-          <span className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted font-mono">
-            {results.length} movies found
-          </span>
+        <div className="mb-6 flex items-center justify-between border-b pb-3 border-lbBeige-border dark:border-lbDark-border">
+          <div>
+            <h2 className="text-lg font-bold text-lbBeige-textMain dark:text-lbDark-textMain">
+              Results for <span className="text-brand-rust dark:text-amber-400">"{searchedQuery}"</span>
+            </h2>
+            <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
+              Found {results.length} film match{results.length === 1 ? '' : 'es'}
+            </p>
+          </div>
         </div>
       )}
 
@@ -279,9 +282,19 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="aspect-[2/3] rounded-lg animate-pulse bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
+              className="aspect-[2/3] rounded-xl animate-pulse bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
             />
           ))}
+        </div>
+      ) : searchedQuery && results.length === 0 ? (
+        <div className="py-16 text-center rounded-2xl border border-dashed border-lbBeige-border dark:border-lbDark-border">
+          <Film className="w-8 h-8 mx-auto text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2 opacity-50" />
+          <p className="text-sm font-semibold text-lbBeige-textMain dark:text-lbDark-textMain">
+            No films matched your search.
+          </p>
+          <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
+            Try a different plot query or switch between story & exact title search.
+          </p>
         </div>
       ) : results.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -293,16 +306,6 @@ export default function SearchView({ initialQuery = '', onMovieClick }) {
               onClick={() => onMovieClick && onMovieClick(movie.id)}
             />
           ))}
-        </div>
-      ) : searchedQuery ? (
-        <div className="py-16 text-center rounded-2xl border border-dashed border-lbBeige-border dark:border-lbDark-border">
-          <Film className="w-10 h-10 mx-auto text-lbBeige-textMuted dark:text-lbDark-textMuted mb-2 opacity-50" />
-          <p className="text-sm font-semibold text-lbBeige-textMain dark:text-lbDark-textMain">
-            No cinematic matches found
-          </p>
-          <p className="text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted mt-1">
-            Try adjusting your search terms or switching between Smart Story Search and Title Match.
-          </p>
         </div>
       ) : null}
 

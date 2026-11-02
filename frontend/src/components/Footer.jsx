@@ -15,7 +15,7 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="flex flex-col items-center md:items-start">
             <div className="flex items-center gap-2">
-              <Film className="w-4 h-4 text-brand-rust dark:text-brand-green" />
+              <Film className="w-4 h-4 text-brand-rust dark:text-amber-400" />
               <span className="font-extrabold text-sm tracking-wider uppercase text-black dark:text-white">
                 Flix Cinema
               </span>
@@ -38,7 +38,7 @@ export default function Footer() {
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-cyan-600" />
+                  <Moon className="w-3.5 h-3.5 text-stone-700" />
                   <span>Theme: Beige Editorial</span>
                 </>
               )}
@@ -47,7 +47,7 @@ export default function Footer() {
             <span className="text-zinc-400 dark:text-zinc-600">•</span>
 
             <div className="flex items-center gap-1">
-              <Database className="w-3.5 h-3.5 text-emerald-500" />
+              <Database className="w-3.5 h-3.5 text-amber-400" />
               <span className="font-mono text-[11px]">System Ready</span>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-6 pt-6 border-t text-center text-[10px] border-lbBeige-border dark:border-lbDark-border">
-          Designed with minimal Letterboxd aesthetics for movie lovers.
+          Designed with minimal cinema aesthetics for movie lovers.
         </div>
       </div>
     </footer>

@@ -23,7 +23,7 @@ export const DEMO_PROFILES = [
     password: 'password123',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
     badge: 'Animation Lover',
-    badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     favoriteGenres: ['Animation', 'Family', 'Comedy'],
     recentWatchesPreview: ['Toy Story', 'Finding Nemo', 'The Lion King', 'Monsters, Inc.', 'Up'],
     bio: 'Championing 3D storytelling, Pixar tear-jerkers, and timeless family classics.',
@@ -153,7 +153,7 @@ export const AuthProvider = ({ children }) => {
         name: username,
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80',
         badge: 'Film Explorer',
-        badgeColor: 'bg-brand-green/10 text-brand-green border-brand-green/20',
+        badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
       };
       setCurrentUser(newUser);
       return newUser;

@@ -177,7 +177,7 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
         onOpenAuthModal={onOpenAuthModal}
       />
 
-      {/* 2. List 1: Based on Your Recent 5 Watches */}
+      {/* 2. List 1: Based on Your Recent Watches */}
       <MovieRow
         title={currentUser ? "Based on Your Recent Watches" : "Curated for You — Top Recommendations"}
         subtitle={recentWatchReason}
@@ -201,12 +201,12 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
       />
 
       {/* 4. Section 3: Navigate by Genre Tabs */}
-      <div className="mt-14 pt-8 border-t border-lbBeige-border dark:border-lbDark-border">
+      <div className="mt-14 pt-8 border-t border-lbBeige-border dark:border-lbDark-border/80">
         
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <Compass className="w-5 h-5 text-brand-green" />
+            <Compass className="w-5 h-5 text-amber-400" />
             <div>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-lbBeige-textMain dark:text-lbDark-textMain">
                 Explore by Genre
@@ -219,15 +219,15 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
         </div>
 
         {/* Horizontal Genre Selector Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-3 mb-6 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
           {GENRES.map((genre) => (
             <button
               key={genre}
               onClick={() => setActiveGenre(genre)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all uppercase tracking-wider ${
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all uppercase tracking-wider ${
                 activeGenre === genre
-                  ? 'bg-brand-rust text-white dark:bg-brand-green dark:text-black shadow-md scale-105'
-                  : 'bg-lbBeige-surface border border-lbBeige-border text-lbBeige-textMuted hover:text-black dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMuted dark:hover:text-white'
+                  ? 'bg-brand-rust text-white dark:bg-amber-400 dark:text-black shadow-md scale-105 font-bold'
+                  : 'bg-lbBeige-surface border border-lbBeige-border text-lbBeige-textMuted hover:text-black dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMuted dark:hover:text-white dark:hover:border-amber-400/40'
               }`}
             >
               {genre}
@@ -241,7 +241,7 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
             {Array.from({ length: 12 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-[2/3] rounded-lg animate-pulse bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
+                className="aspect-[2/3] rounded-xl animate-pulse bg-lbBeige-surface/60 dark:bg-lbDark-surface/60 border border-lbBeige-border/40 dark:border-lbDark-border/40"
               />
             ))}
           </div>
@@ -269,7 +269,7 @@ export default function HomeView({ onMovieClick, onOpenAuthModal }) {
                   disabled={genreLoading}
                   className="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all
                     bg-lbBeige-surface border border-lbBeige-border hover:bg-lbBeige-hover text-lbBeige-textMain
-                    dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:text-lbDark-textMain active:scale-95"
+                    dark:bg-lbDark-surface dark:border-lbDark-border dark:hover:bg-lbDark-hover dark:hover:border-amber-400/50 dark:text-lbDark-textMain active:scale-95"
                 >
                   {genreLoading ? 'Loading Movies...' : 'Load More Cinema'}
                 </button>

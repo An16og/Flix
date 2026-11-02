@@ -8,7 +8,40 @@
   }
 }
 
-/* Custom Letterboxd scrollbar */
+/* Ambient cinematic background lighting - gives depth and removes the flat empty void */
+.cinema-ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: 
+    radial-gradient(1100px 520px at 50% -90px, rgba(229, 169, 60, 0.08), transparent 70%),
+    radial-gradient(900px 450px at 92% 25%, rgba(56, 189, 248, 0.03), transparent 60%),
+    radial-gradient(800px 400px at 8% 65%, rgba(229, 169, 60, 0.035), transparent 60%);
+}
+
+.light .cinema-ambient-bg {
+  background-image: 
+    radial-gradient(1100px 520px at 50% -90px, rgba(217, 119, 6, 0.05), transparent 70%),
+    radial-gradient(900px 450px at 88% 20%, rgba(191, 83, 44, 0.04), transparent 60%),
+    radial-gradient(700px 350px at 10% 65%, rgba(217, 119, 6, 0.03), transparent 55%);
+}
+
+/* Subtle Film Grain Noise Texture (Minimalist cinematic tactile feel) */
+.cinema-grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.024;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+.light .cinema-grain-overlay {
+  opacity: 0.016;
+}
+
+/* Custom Cinema scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -21,7 +54,7 @@
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 140, 160, 0.45);
+  background: rgba(229, 169, 60, 0.45);
 }
 
 .line-clamp-2 {

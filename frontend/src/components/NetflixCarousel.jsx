@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Info, Bookmark, Star, Sparkles, Check, Film } from 'lucide-react';
-import { getPosterUrl } from '../utils/imageUtils';
+import { ChevronLeft, ChevronRight, Info, Bookmark, Star, Check, Film } from 'lucide-react';
+import { getPosterUrl, getPlaceholderPoster, handlePosterError } from '../utils/imageUtils';
 import { useAuth } from '../context/AuthContext';
 import { activityApi } from '../api/client';
 
@@ -75,7 +75,7 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
   return (
     <div
       className="relative w-full rounded-2xl overflow-hidden border shadow-2xl mb-12 transition-all group select-none
-        border-lbBeige-border dark:border-lbDark-border h-[420px] sm:h-[480px] bg-black"
+        border-lbBeige-border dark:border-lbDark-border/80 h-[420px] sm:h-[480px] bg-zinc-950"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
@@ -85,11 +85,12 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
           key={currentMovie.id}
           src={posterUrl}
           alt={currentMovie.title}
-          className="w-full h-full object-cover object-center opacity-30 filter brightness-75 scale-105 transition-all duration-700 ease-out"
+          className="w-full h-full object-cover object-center opacity-35 filter brightness-75 scale-105 transition-all duration-700 ease-out"
+          onError={(e) => handlePosterError(e, currentMovie)}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/85 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-green/10 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-transparent to-transparent opacity-70" />
       </div>
 
       {/* Content Overlay */}
@@ -97,23 +98,23 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
         
         {/* Top Badges */}
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-brand-green text-black flex items-center gap-1 shadow-sm">
+          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-400 text-black flex items-center gap-1.5 shadow-md">
             <Film className="w-3 h-3" /> Featured Premiere
           </span>
 
-          <span className="flex items-center gap-1 text-xs font-bold font-mono px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-amber-400 border border-white/10">
+          <span className="flex items-center gap-1 text-xs font-bold font-mono px-2.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-amber-400 border border-white/10">
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             {Number(voteAvg).toFixed(1)} / 10
           </span>
 
-          <span className="text-xs font-mono text-zinc-400 px-2 py-0.5 rounded bg-black/40">
+          <span className="text-xs font-mono text-zinc-300 px-2 py-0.5 rounded bg-black/40 border border-white/10">
             {releaseYear}
           </span>
 
           {genres.map((g, idx) => (
             <span
               key={idx}
-              className="hidden sm:inline-block text-[11px] font-medium text-zinc-300 px-2 py-0.5 rounded bg-white/10 backdrop-blur-sm"
+              className="hidden sm:inline-block text-[11px] font-medium text-zinc-300 px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10"
             >
               {g}
             </span>
@@ -121,7 +122,7 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight line-clamp-2 drop-shadow-md">
+        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight line-clamp-2 drop-shadow-md text-white">
           {currentMovie.title}
         </h1>
 
@@ -136,7 +137,7 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
           <button
             onClick={() => onOpenDetail(currentMovie.id)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider 
-              bg-brand-green text-black hover:bg-emerald-400 active:scale-95 transition-all shadow-lg hover:shadow-emerald-500/25"
+              bg-amber-400 text-black hover:bg-amber-300 active:scale-95 transition-all shadow-lg hover:shadow-amber-500/25"
           >
             <Info className="w-4 h-4" />
             Film Details & Cast
@@ -147,13 +148,13 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
             disabled={loadingAction}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider backdrop-blur-md border transition-all active:scale-95 ${
               watchlistStatus[currentMovie.id]
-                ? 'bg-brand-green/20 text-brand-green border-brand-green/50'
+                ? 'bg-amber-400/20 text-amber-400 border-amber-400/50'
                 : 'bg-white/10 hover:bg-white/20 text-white border-white/20'
             }`}
           >
             {watchlistStatus[currentMovie.id] ? (
               <>
-                <Check className="w-4 h-4 text-brand-green" />
+                <Check className="w-4 h-4 text-amber-400 stroke-[3]" />
                 In Watchlist
               </>
             ) : (
@@ -192,7 +193,7 @@ export default function NetflixCarousel({ movies = [], onOpenDetail, onOpenAuthM
             onClick={() => setCurrentIndex(idx)}
             className={`transition-all rounded-full ${
               idx === currentIndex
-                ? 'w-6 h-1.5 bg-brand-green shadow-sm'
+                ? 'w-6 h-1.5 bg-amber-400 shadow-sm'
                 : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
             }`}
             aria-label={`Go to slide ${idx + 1}`}

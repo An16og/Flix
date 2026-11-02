@@ -8,15 +8,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Theme 1: Letterboxd Dark Slate
+        // Theme 1: Letterboxd & Criterion Dark Slate
         lbDark: {
-          bg: '#14181c',       // Base background
-          surface: '#1a2129',  // Card / surface
-          card: '#1f2730',     // Card elevated
-          border: '#2c3742',   // Borders & dividers
-          hover: '#26303b',    // Hover states
-          textMuted: '#7f93a6',// Subtitle text
-          textMain: '#e6edf5', // Primary text
+          bg: '#0e1115',       // Deep cinematic charcoal slate
+          surface: '#151a21',  // Card / surface
+          card: '#1b222c',     // Card elevated
+          border: '#26313f',   // Borders & dividers
+          hover: '#222b37',    // Hover states
+          textMuted: '#8b9bb0',// Subtitle text
+          textMain: '#f1f5f9', // Primary text
         },
         // Theme 2: Editorial Beige & Off-White
         lbBeige: {
@@ -28,12 +28,14 @@ export default {
           textMuted: '#786e60',// Subtitle text
           textMain: '#24201a', // Primary text
         },
-        // Accent colors
+        // Accent colors - Prestige Cinema Gold & Warm Amber
         brand: {
-          green: '#00e054',    // Letterboxd signature neon green
-          orange: '#ff8000',   // Letterboxd orange
-          blue: '#40bcf4',     // Cyan / blue
-          rust: '#bf532c',     // Warm rust for beige theme
+          gold: '#e5a93c',     // Prestige Cinema Gold
+          amber: '#f59e0b',    // Warm Amber
+          green: '#e5a93c',    // Aliased to Cinema Gold so existing classes gracefully adopt warm gold!
+          rust: '#bf532c',     // Warm Rust for beige theme
+          orange: '#f97316',   // Warm Orange
+          blue: '#38bdf8',     // Sky Blue
         }
       },
       fontFamily: {
@@ -56,7 +58,8 @@ export default {
       },
       boxShadow: {
         'card-glow': '0 8px 24px -4px rgba(0, 0, 0, 0.45)',
-        'poster-hover': '0 12px 30px -6px rgba(0, 224, 84, 0.25)',
+        'poster-hover': '0 12px 30px -6px rgba(229, 169, 60, 0.35)',
+        'gold-glow': '0 0 25px -4px rgba(229, 169, 60, 0.4)',
       }
     },
   },

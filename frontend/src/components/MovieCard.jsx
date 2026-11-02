@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Star, Eye, Bookmark, Check, Film } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { activityApi } from '../api/client';
-import { getPosterUrl, getPlaceholderPoster } from '../utils/imageUtils';
+import { getPosterUrl, getPlaceholderPoster, handlePosterError } from '../utils/imageUtils';
 
 export default function MovieCard({ 
   movie, 
@@ -22,14 +22,14 @@ export default function MovieCard({
   const posterUrl = getPosterUrl(movie);
 
   // Extract year from release date if string
-  const releaseYear = movie.releaseDate 
+  const releaseYear = movie?.releaseDate 
     ? movie.releaseDate.split('-')[0] 
-    : (movie.release_date ? movie.release_date.split('-')[0] : null);
+    : (movie?.release_date ? movie.release_date.split('-')[0] : null);
 
-  const voteAverage = movie.voteAverage || movie.vote_average || 0;
+  const voteAverage = movie?.voteAverage || movie?.vote_average || 0;
 
   // Primary genre for styling
-  const genreList = Array.isArray(movie.genres) ? movie.genres : [];
+  const genreList = Array.isArray(movie?.genres) ? movie.genres : [];
   const primaryGenre = genreList.length > 0 ? genreList[0] : null;
 
   const handleToggleWatched = async (e) => {
@@ -73,10 +73,10 @@ export default function MovieCard({
       className="group relative cursor-pointer flex flex-col transition-all duration-300 focus:outline-none"
     >
       {/* Poster Container */}
-      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg border transition-all duration-300
-        bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border 
-        group-hover:border-brand-rust dark:group-hover:border-brand-green 
-        group-hover:shadow-[0_8px_25px_-6px_rgba(191,83,44,0.3)] dark:group-hover:shadow-[0_8px_25px_-6px_rgba(0,224,84,0.3)]">
+      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border transition-all duration-300
+        bg-lbBeige-surface border-lbBeige-border dark:bg-lbDark-surface dark:border-lbDark-border/80 
+        group-hover:border-amber-500/60 dark:group-hover:border-amber-400/80 
+        group-hover:shadow-[0_10px_28px_-6px_rgba(217,119,6,0.25)] dark:group-hover:shadow-[0_10px_30px_-6px_rgba(245,158,11,0.3)]">
         
         {!imgError ? (
           <img
@@ -84,13 +84,16 @@ export default function MovieCard({
             alt={movie.title}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-            onError={() => setImgError(true)}
+            onError={(e) => {
+              setImgError(true);
+              handlePosterError(e, movie);
+            }}
           />
         ) : (
-          /* Typographic Letterboxd Art Poster when CDN image is missing/404 */
-          <div className="w-full h-full flex flex-col justify-between p-3.5 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black text-white select-none">
+          /* Sleek Typographic Cinema Poster when image is missing/404 */
+          <div className="w-full h-full flex flex-col justify-between p-3.5 bg-gradient-to-br from-zinc-900 via-zinc-950 to-black text-white select-none border border-white/5">
             <div className="flex items-center justify-between">
-              <span className="p-1 rounded bg-white/10 text-white/70">
+              <span className="p-1 rounded-md bg-white/10 text-amber-400">
                 <Film className="w-3.5 h-3.5" />
               </span>
               {releaseYear && (
@@ -105,17 +108,17 @@ export default function MovieCard({
                 {movie.title}
               </h3>
               {primaryGenre && (
-                <span className="inline-block mt-2 text-[9px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-brand-green/20 text-brand-green border border-brand-green/30">
+                <span className="inline-block mt-2 text-[9px] font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
                   {primaryGenre}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 border-t border-white/10 pt-1.5">
-              <span>Flix Cinema</span>
+            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 border-t border-white/10 pt-2">
+              <span className="text-amber-400 font-bold tracking-widest text-[9px]">FLIX ARCHIVE</span>
               {voteAverage > 0 && (
                 <span className="flex items-center gap-0.5 text-amber-400 font-bold">
-                  ★ {voteAverage.toFixed(1)}
+                  ★ {Number(voteAverage).toFixed(1)}
                 </span>
               )}
             </div>
@@ -123,17 +126,17 @@ export default function MovieCard({
         )}
 
         {/* Hover Overlay with Quick Actions */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2.5">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2.5">
           
           {/* Top Badges (Similarity / Year) */}
           <div className="flex items-center justify-between w-full">
             {similarityScore ? (
-              <span className="flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-brand-green text-black shadow-sm tracking-wide">
+              <span className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-400 text-black shadow-sm tracking-wide">
                 <Film className="w-2.5 h-2.5" />
                 {Math.round(similarityScore * 100)}% Match
               </span>
             ) : releaseYear ? (
-              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-black/60 text-white/90 backdrop-blur-sm">
+              <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-black/60 text-white/90 backdrop-blur-sm border border-white/10">
                 {releaseYear}
               </span>
             ) : <span />}
@@ -142,7 +145,7 @@ export default function MovieCard({
             {voteAverage > 0 && (
               <div className="flex items-center gap-1 text-[11px] font-bold px-1.5 py-0.5 rounded bg-amber-400 text-black shadow-sm">
                 <Star className="w-3 h-3 fill-black text-black" />
-                <span>{voteAverage.toFixed(1)}</span>
+                <span>{Number(voteAverage).toFixed(1)}</span>
               </div>
             )}
           </div>
@@ -154,8 +157,8 @@ export default function MovieCard({
               onClick={handleToggleWatched}
               className={`p-1.5 rounded-full backdrop-blur-md transition-all ${
                 watched
-                  ? 'bg-brand-green text-black scale-110'
-                  : 'bg-black/60 text-white/80 hover:bg-brand-green hover:text-black'
+                  ? 'bg-amber-400 text-black scale-110 shadow-md'
+                  : 'bg-black/60 text-white/80 hover:bg-amber-400 hover:text-black'
               }`}
             >
               {watched ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : <Eye className="w-3.5 h-3.5" />}
@@ -166,7 +169,7 @@ export default function MovieCard({
               onClick={handleToggleWatchlist}
               className={`p-1.5 rounded-full backdrop-blur-md transition-all ${
                 inWatchlist
-                  ? 'bg-amber-400 text-black scale-110'
+                  ? 'bg-amber-400 text-black scale-110 shadow-md'
                   : 'bg-black/60 text-white/80 hover:bg-amber-400 hover:text-black'
               }`}
             >
@@ -179,10 +182,10 @@ export default function MovieCard({
       </div>
 
       {/* Title & Metadata below card */}
-      <div className="mt-1.5 px-0.5">
+      <div className="mt-2 px-0.5">
         <h4 className="text-xs font-semibold leading-snug truncate transition-colors
           text-lbBeige-textMain group-hover:text-brand-rust
-          dark:text-lbDark-textMain dark:group-hover:text-brand-green">
+          dark:text-lbDark-textMain dark:group-hover:text-amber-400">
           {movie.title}
         </h4>
         <div className="flex items-center justify-between text-[11px] mt-0.5 
@@ -191,7 +194,7 @@ export default function MovieCard({
           {voteAverage > 0 && (
             <span className="flex items-center gap-0.5 font-medium">
               <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
-              {voteAverage.toFixed(1)}
+              {Number(voteAverage).toFixed(1)}
             </span>
           )}
         </div>

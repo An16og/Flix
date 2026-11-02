@@ -28,65 +28,74 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-brand-green selection:text-black">
+    <div className="min-h-screen relative flex flex-col font-sans selection:bg-amber-400 selection:text-black">
       
-      {/* Navigation Bar */}
-      <Navbar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenAuthModal={handleOpenAuthModal}
-      />
+      {/* Ambient Cinema Lighting & Depth */}
+      <div className="cinema-ambient-bg" />
+      <div className="cinema-grain-overlay" />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      {/* Main UI Container */}
+      <div className="relative z-10 flex flex-col min-h-screen">
         
-        {/* 1. Home Tab: Netflix sliding carousel + Recent 5 watches recs + Prominent trait spectrum + Genre tabs */}
-        {activeTab === 'home' && (
-          <HomeView
-            onMovieClick={handleOpenMovieDetail}
-            onOpenAuthModal={handleOpenAuthModal}
-          />
-        )}
-
-        {/* 2. Search Tab: Search bar + Recent Searches + Smart Story & Title search */}
-        {activeTab === 'search' && (
-          <SearchView
-            onMovieClick={handleOpenMovieDetail}
-          />
-        )}
-
-        {/* 3. Profile Tab: Profile info + Persona switch + Watchlist + Watched history */}
-        {activeTab === 'profile' && (
-          <ProfileView
-            onMovieClick={handleOpenMovieDetail}
-            onOpenAuthModal={handleOpenAuthModal}
-          />
-        )}
-
-      </main>
-
-      {/* Global Modals */}
-      {selectedMovieId && (
-        <MovieDetailModal
-          movieId={selectedMovieId}
-          onClose={handleCloseMovieDetail}
-          onMovieSelected={handleOpenMovieDetail}
+        {/* Navigation Bar */}
+        <Navbar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onOpenAuthModal={handleOpenAuthModal}
         />
-      )}
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        initialMode={authModalMode}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          
+          {/* 1. Home Tab: Netflix sliding carousel + Recent 5 watches recs + Prominent trait spectrum + Genre tabs */}
+          {activeTab === 'home' && (
+            <HomeView
+              onMovieClick={handleOpenMovieDetail}
+              onOpenAuthModal={handleOpenAuthModal}
+            />
+          )}
 
-      {/* Subtle RAG Bot floating assistant */}
-      <RagBotModal
-        onOpenMovieDetail={handleOpenMovieDetail}
-      />
+          {/* 2. Search Tab: Search bar + Recent Searches + Smart Story & Title search */}
+          {activeTab === 'search' && (
+            <SearchView
+              onMovieClick={handleOpenMovieDetail}
+            />
+          )}
 
-      {/* Footer */}
-      <Footer />
+          {/* 3. Profile Tab: Profile info + Persona switch + Watchlist + Watched history */}
+          {activeTab === 'profile' && (
+            <ProfileView
+              onMovieClick={handleOpenMovieDetail}
+              onOpenAuthModal={handleOpenAuthModal}
+            />
+          )}
+
+        </main>
+
+        {/* Global Modals */}
+        {selectedMovieId && (
+          <MovieDetailModal
+            movieId={selectedMovieId}
+            onClose={handleCloseMovieDetail}
+            onMovieSelected={handleOpenMovieDetail}
+          />
+        )}
+
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          initialMode={authModalMode}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+
+        {/* Subtle RAG Bot floating assistant */}
+        <RagBotModal
+          onOpenMovieDetail={handleOpenMovieDetail}
+        />
+
+        {/* Footer */}
+        <Footer />
+
+      </div>
 
     </div>
   );

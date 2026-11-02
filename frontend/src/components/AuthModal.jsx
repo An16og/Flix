@@ -89,7 +89,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             onClick={() => { setIsRegister(false); setFormError(''); }}
             className={`text-base font-bold pb-1 transition-all ${
               !isRegister
-                ? 'border-b-2 border-brand-rust text-brand-rust dark:border-brand-green dark:text-brand-green font-extrabold'
+                ? 'border-b-2 border-brand-rust text-brand-rust dark:border-amber-400 dark:text-amber-400 font-extrabold'
                 : 'text-lbBeige-textMuted dark:text-lbDark-textMuted hover:text-black dark:hover:text-white'
             }`}
           >
@@ -100,7 +100,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             onClick={() => { setIsRegister(true); setFormError(''); }}
             className={`text-base font-bold pb-1 transition-all ${
               isRegister
-                ? 'border-b-2 border-brand-rust text-brand-rust dark:border-brand-green dark:text-brand-green font-extrabold'
+                ? 'border-b-2 border-brand-rust text-brand-rust dark:border-amber-400 dark:text-amber-400 font-extrabold'
                 : 'text-lbBeige-textMuted dark:text-lbDark-textMuted hover:text-black dark:hover:text-white'
             }`}
           >
@@ -131,7 +131,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                   placeholder="e.g. cinema_lover"
                   className="w-full pl-9 pr-3 py-2 rounded-lg text-xs font-medium border focus:outline-none transition-all
                     bg-lbBeige-card border-lbBeige-border focus:border-brand-rust
-                    dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-brand-green"
+                    dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-amber-400"
                 />
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 placeholder="alice@flix.com"
                 className="w-full pl-9 pr-3 py-2 rounded-lg text-xs font-medium border focus:outline-none transition-all
                   bg-lbBeige-card border-lbBeige-border focus:border-brand-rust
-                  dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-brand-green"
+                  dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-amber-400"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 placeholder="password123"
                 className="w-full pl-9 pr-3 py-2 rounded-lg text-xs font-medium border focus:outline-none transition-all
                   bg-lbBeige-card border-lbBeige-border focus:border-brand-rust
-                  dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-brand-green"
+                  dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-amber-400"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                       onClick={() => handleGenreToggle(g)}
                       className={`text-[10px] px-2.5 py-1 rounded-full border transition-all ${
                         selected
-                          ? 'bg-brand-green text-black font-bold border-brand-green'
+                          ? 'bg-amber-400 text-black font-bold border-amber-400'
                           : 'bg-lbBeige-card border-lbBeige-border dark:bg-lbDark-bg dark:border-lbDark-border'
                       }`}
                     >
@@ -199,7 +199,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-2 py-2.5 rounded-lg text-xs font-bold transition-all bg-brand-green text-black hover:bg-emerald-400 disabled:opacity-50"
+            className="w-full mt-2 py-2.5 rounded-lg text-xs font-bold transition-all bg-amber-400 text-black hover:bg-amber-300 disabled:opacity-50 shadow-md"
           >
             {submitting ? 'Authenticating...' : isRegister ? 'Register New Account' : 'Sign In'}
           </button>
@@ -208,7 +208,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         {/* Mock Demonstration Accounts Card */}
         <div className="mt-6 pt-5 border-t border-lbBeige-border dark:border-lbDark-border">
           <div className="flex items-center gap-1.5 mb-2.5">
-            <Film className="w-4 h-4 text-brand-rust dark:text-brand-green" />
+            <Film className="w-4 h-4 text-brand-rust dark:text-amber-400" />
             <span className="text-xs font-bold uppercase tracking-wider font-mono">
               Demo Profiles for Presentation
             </span>
@@ -225,7 +225,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 onClick={() => handleSelectMockProfile(p)}
                 className="w-full flex items-center justify-between p-2 rounded-xl border text-left transition-all
                   bg-lbBeige-card border-lbBeige-border hover:border-brand-rust
-                  dark:bg-lbDark-card dark:border-lbDark-border dark:hover:border-brand-green"
+                  dark:bg-lbDark-card dark:border-lbDark-border dark:hover:border-amber-400/80"
               >
                 <div className="flex items-center gap-2.5">
                   <img src={p.avatar} alt={p.name} className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-400" />
@@ -236,7 +236,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                     </span>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-1 rounded bg-brand-green text-black shrink-0 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-1 rounded bg-amber-400 text-black shrink-0 flex items-center gap-1">
                   Sign In <ArrowRight className="w-3 h-3" />
                 </span>
               </button>

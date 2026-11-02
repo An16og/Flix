@@ -39,7 +39,7 @@ public class RecommendationService {
 
         // Ensure the target movie has an embedding (generate on-demand if missing)
         if (targetMovie.getEmbedding() == null) {
-            log.info("Movie id={} '{}' missing embedding — generating on-demand...", movieId, targetMovie.getTitle());
+            log.info("Movie id={} '{}' missing embedding â€” generating on-demand...", movieId, targetMovie.getTitle());
             boolean success = embeddingPipelineService.embedSingleMovie(movieId);
             if (success) {
                 targetMovie = movieRepository.findById(movieId).orElse(targetMovie);
@@ -210,28 +210,102 @@ public class RecommendationService {
     /**
      * FR-05 & FR-21: Natural language semantic search using pgvector.
      */
-    public List<RecommendationItemDto> searchMovies(String query, int limit) {
-        float[] queryVector = geminiClientService.getEmbedding(query);
-        if (queryVector == null) {
-            throw new IllegalStateException("Failed to generate embedding for query: " + query);
+        public List<RecommendationItemDto> searchMovies(String query, int limit) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        String cleanQuery = query.trim();
+
+        // 1. Vector Semantic Search via Gemini Embeddings + pgvector
+        List<RecommendationItemDto> semanticResults = new ArrayList<>();
+        try {
+            float[] queryVector = geminiClientService.getEmbedding(cleanQuery);
+            if (queryVector != null) {
+                String vectorStr = vectorToString(queryVector);
+                // Retrieve a rich candidate pool of top semantic matches (e.g. top 60)
+                int candidatePoolSize = Math.max(limit * 3, 60);
+                List<MovieSearchResultView> candidates = movieRepository.findSimilarMovies(vectorStr, candidatePoolSize);
+
+                for (MovieSearchResultView r : candidates) {
+                    double sim = r.getSimilarityScore() != null ? r.getSimilarityScore() : 0.0;
+                    // Filter out unrelated noise below 0.50 similarity threshold
+                    if (sim < 0.50) continue;
+
+                    // Authority-weighted hybrid score (semantic similarity + rating + popularity/votes)
+                    double hybrid = calculateHybridScore(sim, r.getVoteAverage(), r.getVoteCount(), r.getPopularity());
+
+                    // Relevance boost if title explicitly mentions the query keywords
+                    String lowerTitle = r.getTitle() != null ? r.getTitle().toLowerCase() : "";
+                    String lowerQuery = cleanQuery.toLowerCase();
+                    if (lowerTitle.contains(lowerQuery)) {
+                        hybrid += 0.08;
+                    }
+
+                    semanticResults.add(RecommendationItemDto.builder()
+                            .id(r.getId())
+                            .title(r.getTitle())
+                            .posterPath(r.getPosterPath())
+                            .posterUrl(MovieService.buildPosterUrl(r.getPosterPath()))
+                            .voteAverage(r.getVoteAverage())
+                            .voteCount(r.getVoteCount())
+                            .popularity(r.getPopularity())
+                            .similarityScore(roundScore(sim))
+                            .hybridScore(roundScore(hybrid))
+                            .recommendationReason("Semantic theme match for '" + cleanQuery + "'")
+                            .build());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Semantic embedding search encountered an error: {}", e.getMessage());
         }
 
-        String vectorStr = vectorToString(queryVector);
-        List<MovieSearchResultView> results = movieRepository.findSimilarMovies(vectorStr, limit);
+        // 2. Keyword exact match enrichment ONLY if user searched an exact title or semantic found too few
+        Map<Integer, RecommendationItemDto> merged = new LinkedHashMap<>();
+        for (RecommendationItemDto item : semanticResults) {
+            merged.put(item.getId(), item);
+        }
 
-        return results.stream().map(r -> RecommendationItemDto.builder()
-                .id(r.getId())
-                .title(r.getTitle())
-                .posterPath(r.getPosterPath())
-                .posterUrl(MovieService.buildPosterUrl(r.getPosterPath()))
-                .voteAverage(r.getVoteAverage())
-                .voteCount(r.getVoteCount())
-                .popularity(r.getPopularity())
-                .similarityScore(roundScore(r.getSimilarityScore()))
-                .hybridScore(roundScore(calculateHybridScore(r.getSimilarityScore(), r.getVoteAverage(), r.getVoteCount())))
-                .recommendationReason("Semantic match for '" + query + "'")
-                .build()
-        ).toList();
+        try {
+            Page<Movie> titleMatches = movieRepository.findByTitleContainingIgnoreCase(
+                    cleanQuery, PageRequest.of(0, 10));
+            for (Movie m : titleMatches.getContent()) {
+                if (merged.containsKey(m.getId())) {
+                    // Movie is already present via semantic vector - boost it!
+                    RecommendationItemDto existing = merged.get(m.getId());
+                    existing.setHybridScore(roundScore(existing.getHybridScore() + 0.10));
+                    existing.setRecommendationReason("Title & theme match for '" + cleanQuery + "'");
+                } else if (merged.size() < limit || m.getTitle().equalsIgnoreCase(cleanQuery)) {
+                    // Only introduce new keyword matches if they are exact title match or we need results
+                    double baseScore = (m.getVoteAverage() != null ? m.getVoteAverage() / 10.0 : 0.5);
+                    double popFactor = m.getPopularity() != null ? Math.min(1.0, m.getPopularity() / 50.0) : 0.1;
+                    double hybrid = (0.50 * 0.70) + (0.25 * baseScore) + (0.25 * popFactor);
+                    if (m.getTitle().equalsIgnoreCase(cleanQuery)) {
+                        hybrid += 0.15; // Exact name boost
+                    }
+                    merged.put(m.getId(), RecommendationItemDto.builder()
+                            .id(m.getId())
+                            .title(m.getTitle())
+                            .posterPath(m.getPosterPath())
+                            .posterUrl(MovieService.buildPosterUrl(m.getPosterPath()))
+                            .voteAverage(m.getVoteAverage())
+                            .voteCount(m.getVoteCount())
+                            .popularity(m.getPopularity())
+                            .similarityScore(0.70)
+                            .hybridScore(roundScore(hybrid))
+                            .recommendationReason("Title match for '" + cleanQuery + "'")
+                            .build());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Keyword search fallback error: {}", e.getMessage());
+        }
+
+        return merged.values().stream()
+                .sorted((a, b) -> Double.compare(
+                        b.getHybridScore() != null ? b.getHybridScore() : 0.0,
+                        a.getHybridScore() != null ? a.getHybridScore() : 0.0))
+                .limit(limit)
+                .toList();
     }
 
     /**
@@ -280,6 +354,21 @@ public class RecommendationService {
      * - IMDb Rating normalized (25%)
      * - Vote count / popularity logarithmic factor (15%)
      */
+        private double calculateHybridScore(Double similarity, Double voteAverage, Integer voteCount, Double popularity) {
+        double simScore = similarity != null ? Math.max(0.0, similarity) : 0.0;
+        double ratingScore = voteAverage != null ? Math.min(1.0, voteAverage / 10.0) : 0.5;
+
+        double countScore = voteCount != null && voteCount > 0
+                ? Math.min(1.0, Math.log10(voteCount) / 4.0)
+                : 0.1;
+        double popScore = popularity != null && popularity > 0
+                ? Math.min(1.0, Math.log10(Math.max(1.0, popularity)) / 2.5)
+                : 0.1;
+        double authorityScore = (0.6 * countScore) + (0.4 * popScore);
+
+        return (0.60 * simScore) + (0.20 * ratingScore) + (0.20 * authorityScore);
+    }
+
     private double calculateHybridScore(Double similarity, Double voteAverage, Integer voteCount) {
         double simScore = similarity != null ? Math.max(0.0, similarity) : 0.0;
         double ratingScore = voteAverage != null ? Math.min(1.0, voteAverage / 10.0) : 0.5;

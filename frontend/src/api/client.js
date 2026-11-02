@@ -41,7 +41,12 @@ export const movieApi = {
   },
 
   // Semantic search via Gemini embedding + pgvector cosine similarity
-  semanticSearch: async (query, limit = 12) => {
+  searchSemantic: async (query, limit = 18) => {
+    const res = await api.get('/movies/search', { params: { query, limit } });
+    return res.data;
+  },
+
+  semanticSearch: async (query, limit = 18) => {
     const res = await api.get('/movies/search', { params: { query, limit } });
     return res.data;
   },

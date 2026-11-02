@@ -4,12 +4,12 @@ import MovieCard from './MovieCard';
 import { movieApi } from '../api/client';
 
 const SUGGESTED_PROMPTS = [
+  "Superhero blockbusters like Batman and Deadpool",
   "Mind-bending time dilation and paradoxes",
   "Gritty 90s neo-noir mob crime drama",
   "Atmospheric psychological horror with twists",
   "Heartwarming Pixar animated journey",
-  "Cyberpunk dystopian future with rogue AI",
-  "Christopher Nolan nonlinear storytelling"
+  "Cyberpunk dystopian future with rogue AI"
 ];
 
 const RECENT_SEARCHES_KEY = 'flix_recent_searches';

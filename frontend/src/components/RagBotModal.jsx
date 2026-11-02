@@ -14,9 +14,9 @@ import { movieApi } from '../api/client';
 import { getPosterUrl, handlePosterError } from '../utils/imageUtils';
 
 const QUICK_CHIPS = [
+  "Superhero blockbusters like Batman and Deadpool",
   "Recommend a mind-bending sci-fi like Interstellar",
   "Gritty 90s psychological thriller with a plot twist",
-  "Whimsical animated movie with heartfelt story",
   "Classic mafia neo-noir crime masterpiece"
 ];
 
@@ -43,20 +43,44 @@ export default function RagBotModal({ onOpenMovieDetail }) {
     const text = textToSend || input;
     if (!text || !text.trim() || loading) return;
 
-    const userMessage = { role: 'user', text: text.trim(), movies: [] };
+    const trimmed = text.trim();
+    const userMessage = { role: 'user', text: trimmed, movies: [] };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setLoading(true);
 
+    // Handle common conversational greetings
+    const lower = trimmed.toLowerCase();
+    if (/^(hi|hello|hey|greetings|who are you|what can you do|help)$/i.test(lower)) {
+      setTimeout(() => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: "Hello! I am your Flix Cinema Concierge. You can ask me for recommendations by theme (e.g. 'superhero movies like Batman and Deadpool'), director style (e.g. 'Christopher Nolan or Tarantino'), or plot mood. What kind of film are you looking for?",
+            movies: []
+          }
+        ]);
+        setLoading(false);
+      }, 300);
+      return;
+    }
+
     try {
       // Query semantic search endpoint powered by Gemini embeddings and pgvector
-      const results = await movieApi.searchSemantic(text.trim(), 4);
+      let results = await movieApi.searchSemantic(trimmed, 4);
+
+      // If semantic search yielded no results, fallback to keyword browse
+      if (!results || results.length === 0) {
+        const fallback = await movieApi.browse(0, 4, '', trimmed, 'popularity');
+        results = fallback?.content || [];
+      }
 
       let replyText = "";
       if (results && results.length > 0) {
         replyText = `Based on what you're looking for, here are ${results.length} great film recommendations:`;
       } else {
-        replyText = "I couldn't find an exact match for that inquiry. Try asking about a specific theme, director, or favorite film title!";
+        replyText = `I couldn't find an exact match for "${trimmed}". Try asking about a specific theme, director, or favorite film title!`;
       }
 
       const botMessage = {
@@ -68,14 +92,30 @@ export default function RagBotModal({ onOpenMovieDetail }) {
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
       console.error(err);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          text: "I had a momentary connection glitch. Please try again in a moment!",
-          movies: []
-        }
-      ]);
+      // Fallback to keyword search on error
+      try {
+        const fallback = await movieApi.browse(0, 4, '', trimmed, 'popularity');
+        const fallbackMovies = fallback?.content || [];
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: fallbackMovies.length > 0
+              ? `Here are top films related to "${trimmed}":`
+              : "I couldn't find matches for that inquiry. Try another movie title or theme!",
+            movies: fallbackMovies
+          }
+        ]);
+      } catch (e2) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: 'assistant',
+            text: "I had a momentary connection glitch. Please try asking again!",
+            movies: []
+          }
+        ]);
+      }
     } finally {
       setLoading(false);
     }

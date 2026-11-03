@@ -52,6 +52,14 @@ export const movieApi = {
   },
 };
 
+export const chatApi = {
+  // Conversational AI Cinema Concierge
+  sendMessage: async (message, history = []) => {
+    const res = await api.post('/chat', { message, history });
+    return res.data;
+  },
+};
+
 export const recommendationApi = {
   // Centroid recommendations based on recent 5 watches with recency decay
   getPersonalized: async (userId, limit = 12) => {

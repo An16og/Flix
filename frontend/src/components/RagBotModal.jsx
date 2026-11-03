@@ -4,30 +4,58 @@ import {
   Send, 
   Film, 
   Star, 
-  MessageSquare, 
-  ChevronRight, 
-  Bot, 
-  User,
-  ExternalLink
+  Sparkles,
+  RotateCcw,
+  Bot
 } from 'lucide-react';
-import { movieApi } from '../api/client';
+import { chatApi } from '../api/client';
 import { getPosterUrl, handlePosterError } from '../utils/imageUtils';
 
-const QUICK_CHIPS = [
-  "Superhero blockbusters like Batman and Deadpool",
-  "Recommend a mind-bending sci-fi like Interstellar",
-  "Gritty 90s psychological thriller with a plot twist",
-  "Classic mafia neo-noir crime masterpiece"
+const DEFAULT_SUGGESTIONS = [
+  "Why is Christopher Nolan's storytelling so compelling?",
+  "Recommend superhero blockbusters like Batman and Deadpool",
+  "Explain the difference between film noir and neo-noir",
+  "Recommend mind-bending sci-fi like Interstellar"
 ];
+
+// Helper to render basic markdown bold and paragraphs safely
+function FormattedMessage({ text }) {
+  if (!text) return null;
+  const paragraphs = text.split('\n\n');
+
+  return (
+    <div className="space-y-2">
+      {paragraphs.map((p, pIdx) => {
+        // Format **bold text**
+        const parts = p.split(/(\*\*.*?\*\*)/g);
+        return (
+          <p key={pIdx} className="leading-relaxed">
+            {parts.map((part, idx) => {
+              if (part.startsWith('**') && part.endsWith('**')) {
+                return (
+                  <strong key={idx} className="font-extrabold text-amber-400">
+                    {part.slice(2, -2)}
+                  </strong>
+                );
+              }
+              return part;
+            })}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function RagBotModal({ onOpenMovieDetail }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [suggestedPrompts, setSuggestedPrompts] = useState(DEFAULT_SUGGESTIONS);
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: "Hello! I am your Flix Cinema Concierge. Ask me anything about movie recommendations, plot themes, or director styles.",
+      text: "Hello! I am your Flix Cinema Concierge. I can discuss directors and film techniques, explain complex endings and themes, analyze characters, or recommend movies tailored to your specific taste.\n\nWhat kind of film or cinematic question are you in the mood for today?",
       movies: []
     }
   ]);
@@ -37,7 +65,18 @@ export default function RagBotModal({ onOpenMovieDetail }) {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, loading]);
+
+  const handleResetChat = () => {
+    setMessages([
+      {
+        role: 'assistant',
+        text: "Hello! I am your Flix Cinema Concierge. I can discuss directors and film techniques, explain complex endings and themes, analyze characters, or recommend movies tailored to your specific taste.\n\nWhat kind of film or cinematic question are you in the mood for today?",
+        movies: []
+      }
+    ]);
+    setSuggestedPrompts(DEFAULT_SUGGESTIONS);
+  };
 
   const handleSend = async (textToSend) => {
     const text = textToSend || input;
@@ -49,73 +88,34 @@ export default function RagBotModal({ onOpenMovieDetail }) {
     setInput('');
     setLoading(true);
 
-    // Handle common conversational greetings
-    const lower = trimmed.toLowerCase();
-    if (/^(hi|hello|hey|greetings|who are you|what can you do|help)$/i.test(lower)) {
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            text: "Hello! I am your Flix Cinema Concierge. You can ask me for recommendations by theme (e.g. 'superhero movies like Batman and Deadpool'), director style (e.g. 'Christopher Nolan or Tarantino'), or plot mood. What kind of film are you looking for?",
-            movies: []
-          }
-        ]);
-        setLoading(false);
-      }, 300);
-      return;
-    }
-
     try {
-      // Query semantic search endpoint powered by Gemini embeddings and pgvector
-      let results = await movieApi.searchSemantic(trimmed, 4);
+      // Build conversation history array for context
+      const history = messages.slice(-4).map((m) => `${m.role}: ${m.text}`);
 
-      // If semantic search yielded no results, fallback to keyword browse
-      if (!results || results.length === 0) {
-        const fallback = await movieApi.browse(0, 4, '', trimmed, 'popularity');
-        results = fallback?.content || [];
-      }
-
-      let replyText = "";
-      if (results && results.length > 0) {
-        replyText = `Based on what you're looking for, here are ${results.length} great film recommendations:`;
-      } else {
-        replyText = `I couldn't find an exact match for "${trimmed}". Try asking about a specific theme, director, or favorite film title!`;
-      }
+      // Call our dynamic AI Cinema Concierge backend endpoint
+      const response = await chatApi.sendMessage(trimmed, history);
 
       const botMessage = {
         role: 'assistant',
-        text: replyText,
-        movies: results || []
+        text: response.reply || "That is a fascinating area of cinema. Here are some standout films that explore this theme:",
+        movies: response.recommendedMovies || []
       };
 
       setMessages((prev) => [...prev, botMessage]);
-    } catch (err) {
-      console.error(err);
-      // Fallback to keyword search on error
-      try {
-        const fallback = await movieApi.browse(0, 4, '', trimmed, 'popularity');
-        const fallbackMovies = fallback?.content || [];
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            text: fallbackMovies.length > 0
-              ? `Here are top films related to "${trimmed}":`
-              : "I couldn't find matches for that inquiry. Try another movie title or theme!",
-            movies: fallbackMovies
-          }
-        ]);
-      } catch (e2) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: 'assistant',
-            text: "I had a momentary connection glitch. Please try asking again!",
-            movies: []
-          }
-        ]);
+
+      if (response.suggestedPrompts && response.suggestedPrompts.length > 0) {
+        setSuggestedPrompts(response.suggestedPrompts);
       }
+    } catch (err) {
+      console.error('Chat error', err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'assistant',
+          text: "I experienced a momentary connection pause. Please try asking your question again!",
+          movies: []
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -127,7 +127,7 @@ export default function RagBotModal({ onOpenMovieDetail }) {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full shadow-xl transition-all duration-300
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-2.5 rounded-full shadow-xl transition-all duration-300
             bg-lbBeige-surface/95 border border-lbBeige-border text-lbBeige-textMain hover:border-brand-rust
             dark:bg-zinc-900/95 dark:border-zinc-700/80 dark:text-zinc-200 dark:hover:border-amber-400/80
             backdrop-blur-md active:scale-95 group"
@@ -144,32 +144,48 @@ export default function RagBotModal({ onOpenMovieDetail }) {
         </button>
       )}
 
-      {/* RAG Bot Chat Drawer / Modal */}
+      {/* Dynamic Cinema Chat Drawer / Modal */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-full sm:w-96 max-h-[580px] h-[85vh] rounded-2xl border shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4
+        <div className="fixed bottom-6 right-6 z-50 w-full sm:w-[420px] max-h-[640px] h-[85vh] rounded-2xl border shadow-2xl flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4
           bg-lbBeige-surface border-lbBeige-border text-lbBeige-textMain
           dark:bg-lbDark-surface dark:border-lbDark-border dark:text-lbDark-textMain">
           
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-lbBeige-border dark:border-lbDark-border bg-black/5 dark:bg-black/20">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-lbBeige-border dark:border-lbDark-border bg-black/5 dark:bg-black/30 backdrop-blur-md">
+            <div className="flex items-center gap-2.5">
               <div className="p-1.5 rounded-lg bg-amber-400/20 text-amber-400">
                 <Film className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-bold leading-tight">Flix Concierge</h3>
+                <h3 className="text-xs font-bold leading-tight flex items-center gap-1.5">
+                  Flix Concierge
+                  <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-amber-400/15 text-amber-400 uppercase tracking-wider">
+                    AI Scholar
+                  </span>
+                </h3>
                 <p className="text-[10px] text-lbBeige-textMuted dark:text-lbDark-textMuted">
-                  AI Film Discovery Guide
+                  Conversational Film Analysis & Discovery
                 </p>
               </div>
             </div>
 
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleResetChat}
+                title="Reset Conversation"
+                className="p-1.5 rounded-lg text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
+
+              <button
+                onClick={() => setIsOpen(false)}
+                title="Close"
+                className="p-1.5 rounded-lg text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Messages Stream */}
@@ -180,19 +196,23 @@ export default function RagBotModal({ onOpenMovieDetail }) {
                 className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
+                  className={`max-w-[90%] rounded-2xl px-4 py-2.5 text-xs ${
                     msg.role === 'user'
-                      ? 'bg-brand-rust text-white dark:bg-amber-400 dark:text-black font-medium'
-                      : 'bg-lbBeige-card dark:bg-lbDark-card border border-lbBeige-border dark:border-lbDark-border shadow-sm'
+                      ? 'bg-brand-rust text-white dark:bg-amber-400 dark:text-black font-semibold shadow-sm'
+                      : 'bg-lbBeige-card dark:bg-lbDark-card border border-lbBeige-border dark:border-lbDark-border shadow-md'
                   }`}
                 >
-                  <p>{msg.text}</p>
+                  {msg.role === 'user' ? (
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  ) : (
+                    <FormattedMessage text={msg.text} />
+                  )}
                 </div>
 
-                {/* Attached Movie Cards if assistant returned recommendations */}
+                {/* Attached Interactive Movie Cards if returned */}
                 {msg.movies && msg.movies.length > 0 && (
-                  <div className="mt-2.5 w-full grid grid-cols-2 gap-2">
-                    {msg.movies.map((m) => (
+                  <div className="mt-3 w-full grid grid-cols-2 gap-2.5">
+                    {msg.movies.slice(0, 4).map((m) => (
                       <div
                         key={m.id}
                         onClick={() => {
@@ -214,7 +234,7 @@ export default function RagBotModal({ onOpenMovieDetail }) {
                           {m.title}
                         </p>
                         <div className="flex items-center justify-between text-[10px] text-lbBeige-textMuted dark:text-lbDark-textMuted mt-0.5">
-                          <span>{m.releaseDate ? m.releaseDate.split('-')[0] : ''}</span>
+                          <span>{m.releaseDate ? m.releaseDate.split('-')[0] : 'Cinema'}</span>
                           {m.voteAverage > 0 && (
                             <span className="flex items-center gap-0.5 text-amber-400 font-bold">
                               ★ {Number(m.voteAverage).toFixed(1)}
@@ -231,26 +251,26 @@ export default function RagBotModal({ onOpenMovieDetail }) {
             {loading && (
               <div className="flex items-center gap-2 text-xs text-lbBeige-textMuted dark:text-lbDark-textMuted p-2">
                 <div className="w-3.5 h-3.5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
-                <span>Consulting recommendation index...</span>
+                <span className="font-mono text-[11px]">Consulting film archives...</span>
               </div>
             )}
 
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Suggested Prompts (when only initial message) */}
-          {messages.length === 1 && (
-            <div className="px-3 pb-2 pt-1 border-t border-lbBeige-border/50 dark:border-lbDark-border/50">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-1.5">
-                Quick Prompts:
+          {/* Dynamic Follow-Up Suggested Chips */}
+          {suggestedPrompts && suggestedPrompts.length > 0 && (
+            <div className="px-3 pb-2 pt-1 border-t border-lbBeige-border/50 dark:border-lbDark-border/50 bg-black/5 dark:bg-black/10">
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-lbBeige-textMuted dark:text-lbDark-textMuted mb-1.5 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400" /> Explore Next:
               </p>
-              <div className="flex flex-col gap-1">
-                {QUICK_CHIPS.slice(0, 2).map((chip, idx) => (
+              <div className="flex flex-col gap-1 max-h-24 overflow-y-auto">
+                {suggestedPrompts.slice(0, 3).map((chip, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(chip)}
-                    className="text-left text-[11px] px-2.5 py-1 rounded-lg border text-lbBeige-textMuted hover:text-black dark:text-lbDark-textMuted dark:hover:text-white
-                      bg-lbBeige-bg border-lbBeige-border dark:bg-lbDark-bg dark:border-lbDark-border dark:hover:border-amber-400/40 truncate"
+                    className="text-left text-[11px] px-2.5 py-1.5 rounded-lg border text-lbBeige-textMuted hover:text-black dark:text-zinc-300 dark:hover:text-white
+                      bg-lbBeige-bg border-lbBeige-border dark:bg-lbDark-bg dark:border-lbDark-border dark:hover:border-amber-400/50 truncate transition-colors"
                   >
                     "{chip}"
                   </button>
@@ -271,15 +291,15 @@ export default function RagBotModal({ onOpenMovieDetail }) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about movies, directors, themes..."
-              className="flex-1 px-3 py-2 rounded-xl text-xs border focus:outline-none transition-all
+              placeholder="Ask anything: film trivia, director styles, themes..."
+              className="flex-1 px-3.5 py-2.5 rounded-xl text-xs border focus:outline-none transition-all
                 bg-lbBeige-bg border-lbBeige-border focus:border-brand-rust
                 dark:bg-lbDark-bg dark:border-lbDark-border dark:focus:border-amber-400"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="p-2 rounded-xl text-black bg-amber-400 hover:bg-amber-300 disabled:opacity-40 transition-all shadow-sm"
+              className="p-2.5 rounded-xl text-black bg-amber-400 hover:bg-amber-300 disabled:opacity-40 transition-all shadow-md active:scale-95"
             >
               <Send className="w-3.5 h-3.5" />
             </button>
